@@ -1,0 +1,9 @@
+{
+  "name": "Debt Tracker",
+  "short_name": "DebtApp",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f59e0b",
+  "icons": []
+}
