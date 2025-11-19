@@ -3,213 +3,174 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Debt Tracker — Premium</title>
+<title>Debt Tracker — Light</title>
 <link rel="manifest" href="manifest.json" />
 <style>
   :root{
-    --bg: #0f172a; /* dark navy */
-    --card: #0b1220;
-    --muted: #94a3b8;
+    --bg: #ffffff;
+    --card: #ffffff;
+    --muted: #6b7280;
     --accent: #f59e0b; /* amber */
     --accent-2: #fb923c; /* orange */
-    --glass: rgba(255,255,255,0.04);
-    --success: #10b981;
-    --danger: #ef4444;
-    --radius: 14px;
+    --radius: 12px;
+    --border: #e6e6e9;
   }
-  /* Reset & body */
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#071029 0%, #071a2a 100%);color:#e6eef8}
-  .container{max-width:980px;margin:18px auto;padding:18px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+  body{font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; background:#fafafa; color:#111}
+  .wrap{max-width:980px;margin:18px auto;padding:18px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
   .brand{display:flex;align-items:center;gap:12px}
-  .logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#052024}
-  h1{font-size:18px;margin:0}
+  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#18201f}
+  h1{font-size:18px;margin:0;color:#b45309}
   p.lead{margin:0;color:var(--muted);font-size:13px}
 
-  /* Cards */
-  .grid{display:grid;grid-template-columns:1fr 420px;gap:16px}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:14px;box-shadow:0 6px 18px rgba(2,6,23,0.6);}
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:16px;margin-top:12px}
+  .card{background:var(--card);border-radius:var(--radius);padding:14px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(16,24,40,0.03)}
   .small{font-size:13px;color:var(--muted)}
-
-  /* Locked UI (center column) */
-  .locked {display:flex;flex-direction:column;gap:12px;padding:18px}
-  label.small{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
-  input, select, button, textarea{border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px;color:#e6eef8;outline:none}
+  input, select, button, textarea{padding:10px;border-radius:8px;border:1px solid var(--border);width:100%;box-sizing:border-box;background:white}
   .row{display:flex;gap:8px}
   .row > *{flex:1}
-  button.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:none;color:#07122a;padding:10px;border-radius:10px;font-weight:700}
-  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  button.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#08201a;border:none;padding:10px;border-radius:8px;font-weight:700}
+  button.ghost{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px;border-radius:8px}
 
+  .metric{display:flex;justify-content:space-between;padding:10px;border-radius:8px;background:#fff;border:1px solid var(--border);margin-bottom:10px}
+  .metric h3{margin:0;font-size:13px;color:var(--muted)}
+  .metric .val{font-weight:700;color:var(--accent)}
 
-  /* Right column dashboard */
-  .metric{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));margin-bottom:10px}
-  .metric h3{margin:0;font-size:14px}
-  .metric .val{font-weight:700;font-size:16px;color:var(--accent)}
+  canvas{width:100%;height:140px;background:transparent;border-radius:8px}
 
-  canvas{width:100%;height:160px;border-radius:8px;background:transparent}
-
-  /* History */
-  .history-list{max-height:280px;overflow:auto;padding-right:6px}
-  .entry{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);margin-bottom:8px}
-  .entry .meta{font-size:13px;color:var(--muted)}
+  .history-list{max-height:300px;overflow:auto}
+  .entry{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:#fff;border:1px solid var(--border);margin-bottom:8px}
+  .nav-actions{display:flex;gap:8px;align-items:center}
 
   footer{margin-top:14px;text-align:center;color:var(--muted);font-size:13px}
-  @media (max-width:900px){.grid{grid-template-columns:1fr;}.brand h1{font-size:16px}}
+  @media (max-width:880px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
   <header>
     <div class="brand">
       <div class="logo">DT</div>
       <div>
-        <h1>Debt Tracker — Premium</h1>
-        <p class="lead">Secure offline app — AES-256 encryption. Goal: move from debt to savings.</p>
+        <h1>Debt Tracker — Secure</h1>
+        <p class="lead">Light mode • Offline AES-256 encryption • Focus: move from loan to savings</p>
       </div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button id="toggleTheme" class="ghost">Dark</button>
+    <div class="nav-actions">
+      <button id="toggleTheme" class="ghost" style="display:none">Theme</button>
       <button id="showAbout" class="ghost">About</button>
     </div>
   </header>
 
   <div class="grid">
-    <!-- LEFT: Main controls -->
+    <!-- LEFT: controls -->
     <div>
-      <div class="card locked" id="lockedUI">
-        <div>
-          <strong style="font-size:15px">Secure Storage — Setup</strong>
-          <div class="small" style="margin-top:6px">Create a <strong>Security Password</strong> to encrypt your financial data locally. This password never leaves your device. If lost, data cannot be recovered.</div>
-        </div>
+      <div class="card" id="lockedUI">
+        <strong>Secure Storage</strong>
+        <p class="small" style="margin-top:6px">Create a <strong>Security Password</strong> to encrypt your data locally. This password never leaves your device. If forgotten, data cannot be recovered.</p>
 
-        <div>
+        <div style="margin-top:12px">
           <label class="small">Create Security Password</label>
           <div class="row">
             <input id="newPass1" type="password" placeholder="Enter new Security Password" autocomplete="new-password">
-            <button id="toggleNew1" class="ghost">👁️</button>
+            <button id="toggleNew1" class="ghost">👁</button>
           </div>
         </div>
 
-        <div>
+        <div style="margin-top:8px">
           <label class="small">Confirm Security Password</label>
           <div class="row">
             <input id="newPass2" type="password" placeholder="Confirm Security Password" autocomplete="new-password">
-            <button id="toggleNew2" class="ghost">👁️</button>
+            <button id="toggleNew2" class="ghost">👁</button>
           </div>
         </div>
 
-        <div style="display:flex;gap:8px">
+        <div style="margin-top:12px;display:flex;gap:8px">
           <button id="createBtn" class="primary">Create Encrypted Storage</button>
           <button id="recoverHelp" class="ghost">Need help?</button>
         </div>
 
-        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03)">
+        <hr style="margin:14px 0;border:none;border-top:1px solid var(--border)">
 
         <div>
-          <strong style="font-size:15px">Unlock Storage</strong>
-          <div class="small" style="margin-top:6px">Enter your Security Password to unlock your encrypted data.</div>
+          <strong>Unlock Storage</strong>
+          <p class="small" style="margin-top:6px">Enter your Security Password to unlock your encrypted data.</p>
         </div>
 
         <div style="margin-top:8px">
           <label class="small">Security Password</label>
           <div class="row">
             <input id="passphrase" type="password" placeholder="Enter Security Password to unlock" autocomplete="current-password">
-            <button id="toggleUnlock" class="ghost">👁️</button>
+            <button id="toggleUnlock" class="ghost">👁</button>
           </div>
-          <div style="display:flex;gap:8px;margin-top:10px">
+
+          <div style="margin-top:10px;display:flex;gap:8px">
             <button id="unlockBtn" class="primary">Unlock</button>
             <button id="wipeBtn" class="ghost">Factory Reset</button>
           </div>
+
+          <p class="small" style="margin-top:10px">Tip: pick a secure phrase and store it in a password manager / safe place.</p>
         </div>
       </div>
-
-      <div class="card" style="margin-top:12px">
+      <!-- Profile & Settings -->
+      <div class="card" style="margin-top:12px" id="appUI" aria-hidden="true">
         <strong>Onboarding — Quick Profile</strong>
-        <div class="small" style="margin-top:8px">Enter your monthly income and active EMIs to get a tailored plan.</div>
-        <div style="margin-top:10px">
-          <label class="small">Monthly Net Income (₹)</label>
-          <input id="income" type="number" placeholder="e.g., 120000">
-        </div>
-        <div style="margin-top:8px">
-          <label class="small">Total Monthly EMI (₹)</label>
-          <input id="emi" type="number" placeholder="e.g., 25951">
-        </div>
-        <div style="margin-top:8px">
-          <label class="small">Fixed Needs Total (₹)</label>
-          <input id="fixedNeeds" type="number" placeholder="Rent + utilities e.g., 30000">
-        </div>
-        <div style="margin-top:8px">
-          <label class="small">Target months to be debt-free</label>
-          <input id="targetMonths" type="number" placeholder="e.g., 18">
-        </div>
+        <p class="small" style="margin-top:6px">Enter monthly income, EMIs and target months to be debt-free.</p>
+
+        <div style="margin-top:10px"><label class="small">Monthly Net Income (₹)</label><input id="income" type="number" placeholder="e.g., 120000"></div>
+        <div style="margin-top:8px"><label class="small">Total Monthly EMI (₹)</label><input id="emi" type="number" placeholder="e.g., 25951"></div>
+        <div style="margin-top:8px"><label class="small">Fixed Needs Total (₹)</label><input id="fixedNeeds" type="number" placeholder="Rent + utilities e.g., 30000"></div>
+        <div style="margin-top:8px"><label class="small">Target months to debt-free</label><input id="targetMonths" type="number" placeholder="e.g., 18"></div>
+
         <div style="margin-top:10px;display:flex;gap:8px">
-          <button id="saveProfile" class="primary">Save Profile</button>
+          <button id="saveProfile" class="primary">Save Profile & Forecast</button>
           <button id="exportBtn" class="ghost">Export Backup</button>
         </div>
       </div>
 
       <div class="card" style="margin-top:12px">
         <strong>Add Loan</strong>
-        <div style="margin-top:8px" class="small">Segregate loans: Personal, Home, Vehicle, Credit card, Consumer</div>
-        <div style="margin-top:8px" class="row">
-          <input id="loanType" placeholder="Type e.g., Personal">
-          <input id="loanOutstanding" type="number" placeholder="Outstanding (₹)">
-        </div>
-        <div style="margin-top:8px" class="row">
-          <input id="loanEMI" type="number" placeholder="EMI (₹)">
-          <input id="loanRate" type="number" placeholder="Rate (%)">
-        </div>
-        <div style="margin-top:8px" class="row">
-          <input id="loanTerm" type="number" placeholder="Remaining months">
-          <input id="loanName" placeholder="Lender name">
-        </div>
-        <div style="margin-top:10px">
-          <button id="addLoanBtn" class="primary">Add Loan</button>
-        </div>
+        <p class="small" style="margin-top:6px">Segregate loans: Personal, Home, Vehicle, Credit Card, Consumer.</p>
+        <div style="margin-top:8px" class="row"><input id="loanType" placeholder="Type (Personal/Home)"><input id="loanOutstanding" type="number" placeholder="Outstanding (₹)"></div>
+        <div style="margin-top:8px" class="row"><input id="loanEMI" type="number" placeholder="EMI (₹)"><input id="loanRate" type="number" placeholder="Rate (%)"></div>
+        <div style="margin-top:8px" class="row"><input id="loanTerm" type="number" placeholder="Remain months"><input id="loanName" placeholder="Lender"></div>
+        <div style="margin-top:10px"><button id="addLoanBtn" class="primary">Add Loan</button></div>
       </div>
 
       <div class="card" style="margin-top:12px">
         <strong>Add Expense</strong>
-        <div style="margin-top:8px" class="small">Track daily spending; app will flag waste merchants</div>
-        <div style="margin-top:8px">
-          <input id="expMerchant" placeholder="Merchant (e.g., Swiggy)">
-        </div>
-        <div style="margin-top:8px" class="row">
-          <input id="expAmount" type="number" placeholder="Amount (₹)">
-          <input id="expDate" type="date">
-        </div>
-        <div style="margin-top:8px">
-          <input id="expCategory" placeholder="Category (Food/Travel/Shopping)">
-        </div>
-        <div style="margin-top:10px">
-          <button id="addExpenseBtn" class="primary">Add Expense</button>
-        </div>
+        <p class="small" style="margin-top:6px">Track spending and flag waste merchants (Swiggy, Amazon, Flipkart...)</p>
+        <div style="margin-top:8px"><input id="expMerchant" placeholder="Merchant (e.g., Swiggy)"></div>
+        <div style="margin-top:8px" class="row"><input id="expAmount" type="number" placeholder="Amount (₹)"><input id="expDate" type="date"></div>
+        <div style="margin-top:8px"><input id="expCategory" placeholder="Category (Food/Shopping/Travel)"></div>
+        <div style="margin-top:10px"><button id="addExpenseBtn" class="primary">Add Expense</button></div>
       </div>
     </div>
 
-    <!-- RIGHT: Dashboard -->
+    <!-- RIGHT column: dashboard -->
     <aside>
       <div class="card">
         <div class="metric"><h3>Income</h3><div class="val" id="metricIncome">—</div></div>
         <div class="metric"><h3>Total EMI</h3><div class="val" id="metricEMI">—</div></div>
         <div class="metric"><h3>Total Debt</h3><div class="val" id="metricDebt">—</div></div>
-        <canvas id="donutCanvas"></canvas>
+
+        <canvas id="donutCanvas" aria-label="50-30-20 chart"></canvas>
       </div>
 
       <div class="card" style="margin-top:12px">
         <strong>6-Month Action Plan</strong>
-        <div id="sixMonth" style="margin-top:8px" class="small"></div>
+        <div id="sixMonth" class="small" style="margin-top:8px"></div>
       </div>
 
       <div class="card" style="margin-top:12px">
         <strong>History</strong>
-        <div class="history-list" id="history"></div>
+        <div class="history-list" id="history" style="margin-top:8px"></div>
       </div>
 
       <div class="card" style="margin-top:12px">
         <strong>Security</strong>
-        <div class="small">Export and keep your backup safe. All backups are encrypted with your Security Password.</div>
+        <p class="small" style="margin-top:6px">Export encrypted backup or clear local data. Backups are encrypted with your Security Password.</p>
         <div style="margin-top:8px;display:flex;gap:8px">
           <button id="downloadBackup" class="ghost">Download Backup</button>
           <button id="clearData" class="ghost">Clear Local Data</button>
@@ -220,18 +181,19 @@
 
   <footer>Offline & encrypted • AES-256-GCM local encryption • No cloud unless you export encrypted backup</footer>
 </div>
-
-  <script>
-/* -------------------- Crypto & Storage -------------------- */
+<script>
+/* ---------- Crypto & storage keys ---------- */
 const PBKDF2_ITER = 200000;
-const SALT_KEY = "debt_salt_premium_v1";
-const ENCRYPTED_KEY = "debt_encrypted_premium_v1";
+const SALT_KEY = "debt_salt_light_v1";
+const ENCRYPTED_KEY = "debt_encrypted_light_v1";
 
+/* ----- binary/text helpers ----- */
 function str2ab(s){ return new TextEncoder().encode(s); }
 function ab2str(ab){ return new TextDecoder().decode(ab); }
 function ab2b64(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))); }
 function b642ab(b64){ const bin = atob(b64); const arr = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); return arr.buffer; }
 
+/* ----- key derivation & AES-GCM (AES-256) ----- */
 async function deriveKey(pass, salt){
   const base = await crypto.subtle.importKey("raw", str2ab(pass), {name:"PBKDF2"}, false, ["deriveKey"]);
   return crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:PBKDF2_ITER, hash:"SHA-256"}, base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
@@ -248,64 +210,97 @@ async function decryptObject(blob, key){
   const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv}, key, data);
   return JSON.parse(ab2str(plain));
 }
+
+/* ----- local storage helpers ----- */
 function saveEncryptedBlob(obj){ localStorage.setItem(ENCRYPTED_KEY, JSON.stringify(obj)); }
 function readEncryptedBlob(){ const v = localStorage.getItem(ENCRYPTED_KEY); return v?JSON.parse(v):null; }
 function storeSalt(buf){ localStorage.setItem(SALT_KEY, ab2b64(buf)); }
 function readSalt(){ const s = localStorage.getItem(SALT_KEY); return s?b642ab(s):null; }
 
-/* -------------------- App state -------------------- */
+/* ---------- App state ---------- */
 let unlockedKey = null;
 let appState = {
   incomeMonthly:0,
-  incomeYearlyExtras:[],
   loans:[],
   fixedNeedsTotal:0,
-  guidanceMode:'soft',
-  riskScore:70,
   history:[],
-  settings:{autoLockMin:5,wasteMerchants:["swiggy","zomato","amazon","flipkart","myntra","ajio","blinkit","bajaj","meesho","nykaa"],tone:1},
-  userGoals:{targetDebtFreeMonths:18,emergencyFundMonths:3}
+  settings:{ wasteMerchants:["swiggy","zomato","amazon","flipkart","myntra","ajio","blinkit","bajaj","meesho","nykaa"] },
+  userGoals:{ targetDebtFreeMonths:18 },
+  guidanceMode:'balanced'
 };
 
-/* -------------------- Utilities -------------------- */
-function uid(prefix='id'){ return prefix+'_'+Math.random().toString(36).slice(2,9); }
-function money(x){ return '₹'+(Math.round(x)).toLocaleString('en-IN'); }
+/* ---------- Utilities ---------- */
+function uid(pref='id'){ return pref + '_' + Math.random().toString(36).slice(2,9); }
+function money(x){ return '₹' + (Math.round(x)).toLocaleString('en-IN'); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function daysInMonth(y,m){ return new Date(y,m,0).getDate(); }
 
-/* -------------------- Budgeting & Loans -------------------- */
+/* ---------- Loan & budgeting logic ---------- */
 function amortizationCalc(P, annualRate, n){
   P=Number(P); annualRate=Number(annualRate); n=Number(n);
-  if(n<=0||P<=0) return {monthlyPayment:0,monthsRemaining:0,totalInterestRemaining:0};
+  if(n<=0 || P<=0) return { monthlyPayment:0, monthsRemaining:0, totalInterestRemaining:0 };
   const r = annualRate/100/12;
-  const EMI = r===0?P/n:(P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
-  return {monthlyPayment:EMI,monthsRemaining:n,totalInterestRemaining:(EMI*n)-P};
+  const EMI = r===0 ? P/n : (P * r * Math.pow(1+r,n)) / (Math.pow(1+r,n)-1);
+  return { monthlyPayment: EMI, monthsRemaining: n, totalInterestRemaining: (EMI*n)-P };
 }
 function computeLoanAggregates(){
-  let totalOutstanding=0,totalEMI=0,totalInterest=0;
-  appState.loans.forEach(ln=>{ totalOutstanding+=Number(ln.principalOutstanding||0); totalEMI+=Number(ln.emi||0); const a=amortizationCalc(Number(ln.principalOutstanding||0),Number(ln.rate||0),Number(ln.remainingMonths||0)); totalInterest+=a.totalInterestRemaining; });
-  return {totalOutstanding,totalEMI,totalInterest};
+  let totalOutstanding=0, totalEMI=0, totalInterest=0;
+  appState.loans.forEach(l=>{
+    totalOutstanding += Number(l.principalOutstanding||0);
+    totalEMI += Number(l.emi||0);
+    const a = amortizationCalc(Number(l.principalOutstanding||0), Number(l.rate||0), Number(l.remainingMonths||0));
+    totalInterest += a.totalInterestRemaining;
+  });
+  return { totalOutstanding, totalEMI, totalInterest };
 }
 function computeBucketsDetailed(){
   const income = Number(appState.incomeMonthly||0);
-  const needs = Math.max(0.5*income, Number(appState.fixedNeedsTotal||0));
-  const wants = 0.3*income;
-  const savings = 0.2*income;
+  const needs = Math.max(0.5 * income, Number(appState.fixedNeedsTotal||0));
+  const wants = 0.3 * income;
+  const savings = 0.2 * income;
   const loanEMI = computeLoanAggregates().totalEMI;
   const adjustedNeeds = needs + loanEMI;
   const monthlySafeSpend = adjustedNeeds + wants;
   const d = new Date(); const days = daysInMonth(d.getFullYear(), d.getMonth()+1);
-  return {income,needs,wants,savings,loanEMI,adjustedNeeds,monthlySafeSpend,dailySafe:monthlySafeSpend/days,weeklySafe:monthlySafeSpend/4};
+  return { income, needs, wants, savings, loanEMI, adjustedNeeds, monthlySafeSpend, dailySafe: monthlySafeSpend/days, weeklySafe: monthlySafeSpend/4 };
 }
 
-/* -------------------- Patterns, Risk & Forecast -------------------- */
-function spendingPatterns(){ const now=new Date(); const last30=new Date(); last30.setDate(now.getDate()-30); const entries30=appState.history.filter(h=>new Date(h.date)>=last30); const total30=entries30.reduce((s,e)=>s+Number(e.amount||0),0); const avgDaily=total30/30; const catTotals={}; appState.history.forEach(e=>{ const c=(e.category||'Misc').toLowerCase(); catTotals[c]=(catTotals[c]||0)+Number(e.amount||0); }); return {total30,avgDaily,catTotals}; }
-function generate6MonthPlan(){ const b=computeBucketsDetailed(); const agg=computeLoanAggregates(); const targetMonths=Number(appState.userGoals.targetDebtFreeMonths||18); const currentTotalOutstanding=agg.totalOutstanding; const neededMonthlyPrincipal=currentTotalOutstanding/Math.max(1,targetMonths); const currentEMI=agg.totalEMI; const approxExtraNeeded=Math.max(0, neededMonthlyPrincipal - Math.max(0,currentEMI*0.6)); let monthExtra=Math.max(0,Math.round(approxExtraNeeded*0.6)); const plan=[]; for(let i=1;i<=6;i++){ const suggestedCut=Math.round(b.wants*(0.08+0.05*(i-1))); const suggestedExtra=monthExtra+Math.round(suggestedCut*0.6); plan.push({monthIndex:i,suggestedCut,suggestedExtra,projectedDebtReduction:suggestedExtra*i}); } return {plan,neededMonthlyPrincipal,approxExtraNeeded}; }
-function yearlyForecast(){ const incomeMonthly=Number(appState.incomeMonthly||0); const incomeYear=incomeMonthly*12 + (appState.incomeYearlyExtras||[]).reduce((s,e)=>s+Number(e.amount||0),0); const b=computeBucketsDetailed(); const agg=computeLoanAggregates(); const patterns=spendingPatterns(); const wasteMerch=appState.settings.wasteMerchants||[]; const wasteTotalLast30=appState.history.filter(h=>wasteMerch.some(w=>(h.merchant||'').toLowerCase().includes(w))).reduce((s,e)=>s+Number(e.amount||0),0); const wasteYearlyProjection=(wasteTotalLast30/30)*365; const monthsToPayOff=agg.totalOutstanding===0?0:Math.ceil(agg.totalOutstanding/Math.max(1,agg.totalEMI*0.6)); return {incomeYear,b,agg,patterns,wasteYearlyProjection,monthsToPayOff}; }
-function computeRiskScore(){ let score=80; const agg=computeLoanAggregates(); const b=computeBucketsDetailed(); const patterns=spendingPatterns(); const emiRatio=agg.totalEMI/Math.max(1,appState.incomeMonthly); if(emiRatio>0.4) score-=25; else if(emiRatio>0.25) score-=10; const wasteMerch=appState.settings.wasteMerchants||[]; const waste30=appState.history.filter(h=>wasteMerch.some(w=>(h.merchant||'').toLowerCase().includes(w))).reduce((s,e)=>s+Number(e.amount||0),0); const wasteRatio=waste30/Math.max(1,appState.incomeMonthly); if(wasteRatio>0.15) score-=20; else if(wasteRatio>0.08) score-=8; const lastMonthSpent=appState.history.filter(h=>isInCurrentMonth(h.date)).reduce((s,e)=>s+Number(e.amount||0),0); const savedEstimate=Math.max(0,appState.incomeMonthly-lastMonthSpent); const saveRatio=savedEstimate/Math.max(1,appState.incomeMonthly); if(saveRatio<0.12) score-=20; else if(saveRatio<0.18) score-=8; score=Math.max(0,Math.min(100,Math.round(score))); appState.riskScore=score; return score; }
-function isInCurrentMonth(datestr){ const d=new Date(datestr); const now=new Date(); return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth(); }
+/* ---------- Spending patterns & warnings ---------- */
+function spendingPatterns(){
+  const now = new Date();
+  const last30 = new Date(); last30.setDate(now.getDate()-30);
+  const entries30 = appState.history.filter(h => new Date(h.date) >= last30);
+  const total30 = entries30.reduce((s,e)=>s+Number(e.amount||0),0);
+  const avgDaily = total30/30;
+  const catTotals = {};
+  appState.history.forEach(e=>{
+    const c = (e.category||'Misc').toLowerCase();
+    catTotals[c] = (catTotals[c]||0) + Number(e.amount||0);
+  });
+  return { total30, avgDaily, catTotals };
+}
+function isWasteMerchant(m){ if(!m) return false; const mm = (m||'').toLowerCase(); return (appState.settings.wasteMerchants||[]).some(w => mm.includes(w)); }
 
-/* -------------------- Persistence, export & UI actions -------------------- */
+/* ---------- 6-month plan & forecast ---------- */
+function generate6MonthPlan(){
+  const b = computeBucketsDetailed();
+  const agg = computeLoanAggregates();
+  const targetMonths = Number(appState.userGoals.targetDebtFreeMonths||18);
+  const currentTotalOutstanding = agg.totalOutstanding;
+  const neededMonthlyPrincipal = currentTotalOutstanding / Math.max(1,targetMonths);
+  const currentEMI = agg.totalEMI;
+  const approxExtraNeeded = Math.max(0, neededMonthlyPrincipal - Math.max(0, currentEMI*0.6));
+  let monthExtra = Math.max(0, Math.round(approxExtraNeeded*0.6));
+  const plan = [];
+  for(let i=1;i<=6;i++){
+    const suggestedCut = Math.round(b.wants * (0.08 + 0.05*(i-1)));
+    const suggestedExtra = monthExtra + Math.round(suggestedCut * 0.6);
+    plan.push({ monthIndex:i, suggestedCut, suggestedExtra, projectedDebtReduction: suggestedExtra*i });
+  }
+  return { plan, neededMonthlyPrincipal, approxExtraNeeded };
+}
+
+/* ---------- Persistence: initialize/unlock/save ---------- */
 async function initializeNew(pass){
   const salt = crypto.getRandomValues(new Uint8Array(16));
   storeSalt(salt.buffer);
@@ -320,39 +315,223 @@ async function unlockWithPass(pass){
   if(!blob) throw new Error('No encrypted data found.');
   const obj = await decryptObject(blob, unlockedKey);
   appState = obj;
+  showAppUI();
   renderAll();
 }
-async function saveState(){ if(!unlockedKey) throw new Error('Not unlocked'); const enc = await encryptObject(appState, unlockedKey); saveEncryptedBlob(enc); }
-
-function exportEncryptedBackup(){
-  const blob = readEncryptedBlob(); if(!blob){ alert('No data to export'); return; } const dataStr = JSON.stringify({ salt: localStorage.getItem(SALT_KEY), blob }); const url = URL.createObjectURL(new Blob([dataStr], { type:'application/json' })); const a = document.createElement('a'); a.href = url; a.download='debt_backup_encrypted.json'; a.click(); URL.revokeObjectURL(url);
+async function saveState(){
+  if(!unlockedKey) throw new Error('Not unlocked');
+  const enc = await encryptObject(appState, unlockedKey);
+  saveEncryptedBlob(enc);
 }
+
+/* ---------- export & wipe ---------- */
+function exportEncryptedBackup(){
+  const blob = readEncryptedBlob(); if(!blob){ alert('No data to export'); return; }
+  const dataStr = JSON.stringify({ salt: localStorage.getItem(SALT_KEY), blob });
+  const url = URL.createObjectURL(new Blob([dataStr], { type:'application/json' }));
+  const a = document.createElement('a'); a.href = url; a.download='debt_backup_encrypted.json'; a.click(); URL.revokeObjectURL(url);
+}
+function wipeAllData(){
+  localStorage.removeItem(SALT_KEY);
+  localStorage.removeItem(ENCRYPTED_KEY);
+  appState = { incomeMonthly:0, loans:[], fixedNeedsTotal:0, history:[], settings:{ wasteMerchants:["swiggy","zomato","amazon","flipkart","myntra","ajio","blinkit","bajaj","meesho","nykaa"] }, userGoals:{ targetDebtFreeMonths:18 } };
+  hideAppUI();
+  alert('Local data cleared');
+}
+
+/* ---------- UI helpers & handlers ---------- */
+function showAppUI(){ document.getElementById('appUI').setAttribute('aria-hidden','false'); }
+function hideAppUI(){ document.getElementById('appUI').setAttribute('aria-hidden','true'); }
 
 document.getElementById('createBtn').addEventListener('click', async ()=>{
   const p1 = document.getElementById('newPass1').value;
   const p2 = document.getElementById('newPass2').value;
-  if(!p1||!p2){ alert('Enter Security Password twice'); return; }
-  if(p1!==p2){ alert('Security Passwords do not match'); return; }
+  if(!p1 || !p2){ alert('Enter Security Password twice'); return; }
+  if(p1 !== p2){ alert('Security Passwords do not match'); return; }
   await initializeNew(p1);
-  document.getElementById('lockedUI').style.display='none';
-  document.getElementById('appUI').style.display='block';
-  saveState().then(()=>renderAll());
+  showAppUI();
+  await saveState();
+  renderAll();
   alert('Encrypted storage created. Remember your Security Password.');
 });
-document.getElementById('unlockBtn').addEventListener('click', async ()=>{ const p=document.getElementById('passphrase').value; try{ await unlockWithPass(p); document.getElementById('lockedUI').style.display='none'; document.getElementById('appUI').style.display='block'; document.getElementById('passphrase').value=''; }catch(e){ alert('Unlock failed: '+e.message);} });
 
-document.getElementById('saveProfile').addEventListener('click', ()=>{ appState.incomeMonthly=Number(document.getElementById('income').value)||appState.incomeMonthly; appState.loansMonthlyEMI=Number(document.getElementById('emi').value)||appState.loansMonthlyEMI; appState.fixedNeedsTotal=Number(document.getElementById('fixedNeeds').value)||appState.fixedNeedsTotal; appState.guidanceMode=document.getElementById('guidanceMode')?.value||appState.guidanceMode; appState.userGoals.targetDebtFreeMonths=Number(document.getElementById('targetMonths').value)||appState.userGoals.targetDebtFreeMonths; saveState().then(()=>{ renderAll(); alert('Profile saved'); }).catch(e=>alert('Save failed: '+e.message)); });
+document.getElementById('unlockBtn').addEventListener('click', async ()=>{
+  const p = document.getElementById('passphrase').value;
+  try{
+    await unlockWithPass(p);
+    document.getElementById('passphrase').value = '';
+  } catch(e){
+    alert('Unlock failed: ' + e.message);
+  }
+});
 
-document.getElementById('addLoanBtn').addEventListener('click', ()=>{ const t=document.getElementById('loanType').value||'Personal'; const p=Number(document.getElementById('loanOutstanding').value)||0; const emi=Number(document.getElementById('loanEMI').value)||0; const rate=Number(document.getElementById('loanRate').value)||0; const term=Number(document.getElementById('loanTerm').value)||0; const name=document.getElementById('loanName').value||''; const ln={id:uid('loan'),type:t,lender:name,principalOutstanding:p,emi:emi,rate:rate,remainingMonths:term}; appState.loans.push(ln); saveState().then(()=>{ renderAll(); alert('Loan added'); }).catch(e=>alert('Save failed: '+e.message)); });
+document.getElementById('recoverHelp').addEventListener('click', ()=> {
+  alert('Your Security Password encrypts your data on this device. If forgotten, data cannot be recovered. Use a password manager or write it down in a safe place.');
+});
+document.getElementById('toggleNew1').addEventListener('click', ()=> toggleInputVisibility('newPass1'));
+document.getElementById('toggleNew2').addEventListener('click', ()=> toggleInputVisibility('newPass2'));
+document.getElementById('toggleUnlock').addEventListener('click', ()=> toggleInputVisibility('passphrase'));
+document.getElementById('wipeBtn').addEventListener('click', ()=> { if(confirm('Clear all local data?')) wipeAllData(); });
+document.getElementById('exportBtn').addEventListener('click', ()=> exportEncryptedBackup());
+document.getElementById('downloadBackup').addEventListener('click', ()=> exportEncryptedBackup());
+document.getElementById('clearData').addEventListener('click', ()=> { if(confirm('Clear all local data?')) wipeAllData(); });
 
-document.getElementById('addExpenseBtn').addEventListener('click', ()=>{ const m=document.getElementById('expMerchant').value||'Unknown'; const amt=Number(document.getElementById('expAmount').value)||0; const d=document.getElementById('expDate').value||todayISO(); const cat=document.getElementById('expCategory').value||'Misc'; if(!amt){ alert('Enter amount'); return; } const e={id:uid('e'),merchant:m,amount:amt,date:d,category:cat}; addExpenseAndEnforce(e); document.getElementById('expMerchant').value=''; document.getElementById('expAmount').value=''; document.getElementById('expDate').value=''; document.getElementById('expCategory').value=''; });
+/* add Loan */
+document.getElementById('addLoanBtn').addEventListener('click', ()=>{
+  const t = document.getElementById('loanType').value || 'Personal';
+  const p = Number(document.getElementById('loanOutstanding').value) || 0;
+  const emi = Number(document.getElementById('loanEMI').value) || 0;
+  const rate = Number(document.getElementById('loanRate').value) || 0;
+  const term = Number(document.getElementById('loanTerm').value) || 0;
+  const name = document.getElementById('loanName').value || '';
+  const ln = { id: uid('loan'), type: t, lender: name, principalOutstanding: p, emi: emi, rate: rate, remainingMonths: term };
+  appState.loans.push(ln);
+  saveState().then(()=> renderAll()).catch(()=> renderAll());
+});
 
-document.getElementById('downloadBackup').addEventListener('click', ()=> exportEncryptedBackup()); document.getElementById('clearData').addEventListener('click', ()=>{ if(confirm('Clear all data?')){ localStorage.removeItem(SALT_KEY); localStorage.removeItem(ENCRYPTED_KEY); appState={incomeMonthly:0,incomeYearlyExtras:[],loans:[],fixedNeedsTotal:0,guidanceMode:'soft',riskScore:70,history:[],settings:{autoLockMin:5,wasteMerchants:["swiggy","zomato","amazon","flipkart","myntra","ajio","blinkit","bajaj","meesho","nykaa"],tone:1},userGoals:{targetDebtFreeMonths:18,emergencyFundMonths:3}}; document.getElementById('lockedUI').style.display='block'; document.getElementById('appUI').style.display='none'; saveState().then(()=>alert('Data cleared')); } });
+/* add Expense */
+document.getElementById('addExpenseBtn').addEventListener('click', ()=>{
+  const m = document.getElementById('expMerchant').value || 'Unknown';
+  const amt = Number(document.getElementById('expAmount').value) || 0;
+  const d = document.getElementById('expDate').value || todayISO();
+  const cat = document.getElementById('expCategory').value || 'Misc';
+  if(!amt){ alert('Enter amount'); return; }
+  const e = { id: uid('e'), merchant: m, amount: amt, date: d, category: cat };
+  addExpenseAndEnforce(e);
+  document.getElementById('expMerchant').value=''; document.getElementById('expAmount').value=''; document.getElementById('expDate').value=''; document.getElementById('expCategory').value='';
+});
 
-/* -------------------- Enforcement -------------------- */
-function isWasteMerchant(m){ if(!m) return false; const mm=(m||'').toLowerCase(); return (appState.settings.wasteMerchants||[]).some(w=> mm.includes(w)); }
-function changeRisk(delta){ appState.riskScore=Math.max(0,Math.min(100,Math.round((appState.riskScore||70)+delta))); saveState().then(()=>renderAll()); }
-function addExpenseAndEnforce(exp){ appState.history.unshift(exp); const b=computeBucketsDetailed(); const now=new Date(exp.date); const month=now.getMonth(); const year=now.getFullYear(); const monthEntries=appState.history.filter(h=>{ const d=new Date(h.date); return d.getMonth()===month && d.getFullYear()===year; }); const monthSpent=monthEntries.reduce((s,e)=>s+Number(e.amount||0),0); const todayEntries=appState.history.filter(h=> new Date(h.date).toDateString() === new Date(exp.date).toDateString()); const todaySpent=todayEntries.reduce((s,e)=>s+Number(e.amount||0),0); const sevenDaysAgo=new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate()-7); const weekEntries=appState.history.filter(h=> new Date(h.date) >= sevenDaysAgo); const weekSpent=weekEntries.reduce((s,e)=>s+Number(e.amount||
+/* add expense logic + warnings */
+function addExpenseAndEnforce(exp){
+  appState.history.unshift(exp);
+  const b = computeBucketsDetailed();
+  const now = new Date(exp.date);
+  const month = now.getMonth(), year = now.getFullYear();
+  const monthEntries = appState.history.filter(h=>{ const d=new Date(h.date); return d.getMonth()===month && d.getFullYear()===year; });
+  const monthSpent = monthEntries.reduce((s,e)=>s+Number(e.amount||0),0);
+  const todayEntries = appState.history.filter(h => new Date(h.date).toDateString() === new Date(exp.date).toDateString());
+  const todaySpent = todayEntries.reduce((s,e)=>s+Number(e.amount||0),0);
+  const sevenDaysAgo=new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate()-7);
+  const weekEntries = appState.history.filter(h => new Date(h.date) >= sevenDaysAgo);
+  const weekSpent = weekEntries.reduce((s,e)=>s+Number(e.amount||0),0);
+
+  if(todaySpent > b.dailySafe) showWarning('STOP. You crossed your DAILY safe spend by ₹' + Math.round(todaySpent - b.dailySafe));
+  if(weekSpent > b.weeklySafe) showWarning('ALERT. Weekly spend exceeded safe limit by ₹' + Math.round(weekSpent - b.weeklySafe));
+  if(monthSpent > b.monthlySafeSpend) showWarning('RISK: You exceeded your MONTHLY safe spend by ₹' + Math.round(monthSpent - b.monthlySafeSpend));
+  if(isWasteMerchant(exp.merchant)) showWarning('WASTE SPEND DETECTED: This purchase may be unnecessary and affects your debt plan.');
+
+  saveState().then(()=> renderAll());
+  return { monthSpent, todaySpent, weekSpent };
+}
+function showWarning(msg){ alert(msg); }
+
+/* rendering functions */
+function drawDonutCanvas(id, vals){
+  const c = document.getElementById(id);
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  const w = c.width = c.offsetWidth;
+  const h = c.height = 140;
+  ctx.clearRect(0,0,w,h);
+  const total = vals.reduce((s,v)=>s+v,0)||1;
+  let start = -0.5*Math.PI;
+  const cx = w/2, cy = h/2, r = Math.min(w,h)/3;
+  const cols = ['#f59e0b','#fb923c','#fde68a'];
+  for(let i=0;i<vals.length;i++){
+    const slice = (vals[i]/total)*(2*Math.PI);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,start+slice); ctx.closePath();
+    ctx.fillStyle = cols[i%cols.length]; ctx.fill();
+    start += slice;
+  }
+  ctx.fillStyle = '#333'; ctx.font='14px system-ui'; ctx.textAlign='center'; ctx.fillText('50-30-20',cx,cy+6);
+}
+
+function renderAll(){
+  const b = computeBucketsDetailed();
+  const agg = computeLoanAggregates();
+  document.getElementById('metricIncome').innerText = b.income ? money(b.income) : '—';
+  document.getElementById('metricEMI').innerText = agg.totalEMI ? money(agg.totalEMI) : '—';
+  document.getElementById('metricDebt').innerText = agg.totalOutstanding ? money(agg.totalOutstanding) : '—';
+  drawDonutCanvas('donutCanvas',[b.adjustedNeeds||0, b.wants||0, b.savings||0]);
+  renderLoans();
+  renderHistory();
+  render6Month();
+}
+
+function renderLoans(){
+  const el = document.getElementById('loanList');
+  if(!el){
+    // create if missing
+    const container = document.createElement('div');
+    container.id='loanList';
+    document.querySelector('.card')?.appendChild(container);
+  }
+  const list = document.getElementById('loanList'); list.innerHTML='';
+  appState.loans.forEach(ln=>{
+    const div = document.createElement('div'); div.className='entry';
+    div.innerHTML = `<div><strong>${escapeHtml(ln.type||'Loan')}</strong><div class="small">${escapeHtml(ln.lender||'')} · ${ln.remainingMonths} months</div></div>
+                     <div style="text-align:right"><div>${money(ln.principalOutstanding)}</div><div style="margin-top:6px"><button onclick="prepayPrompt('${ln.id}')" class="ghost">Prepay</button></div></div>`;
+    list.appendChild(div);
+  });
+}
+
+function prepayPrompt(id){
+  const amt = prompt('Enter extra principal payment amount (₹):');
+  if(!amt) return;
+  const ln = appState.loans.find(l=>l.id===id);
+  if(!ln) return;
+  ln.principalOutstanding = Math.max(0, Number(ln.principalOutstanding) - Number(amt));
+  saveState().then(()=> renderAll());
+}
+
+function renderHistory(){
+  const el = document.getElementById('history'); el.innerHTML='';
+  appState.history.forEach(h=>{
+    const div = document.createElement('div'); div.className='entry';
+    div.innerHTML = `<div><strong>${escapeHtml(h.merchant)}</strong><div class="small">${h.date} · ${escapeHtml(h.category||'Misc')}</div></div>
+                     <div style="text-align:right"><div>${money(h.amount)}</div><div style="margin-top:6px"><button onclick="undoById('${h.id}')" class="ghost">Undo</button></div></div>`;
+    el.appendChild(div);
+  });
+}
+function undoById(id){ appState.history = appState.history.filter(h=>h.id!==id); saveState().then(()=> renderAll()); }
+
+/* 6-month plan */
+function render6Month(){
+  const container = document.getElementById('sixMonth'); container.innerHTML='';
+  const plan = generate6MonthPlan();
+  let out = `<div class="small">Suggested monthly cuts & extras to repay loans faster</div>`;
+  plan.plan.forEach(p=>{
+    out += `<div class="entry" style="margin-top:8px"><div><strong>Month ${p.monthIndex}</strong><div class="small">Cut wants: ${money(p.suggestedCut)} · Extra to loans: ${money(p.suggestedExtra)}</div></div></div>`;
+  });
+  container.innerHTML = out;
+}
+
+/* helpers */
+function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toggleInputVisibility(id){ const el = document.getElementById(id); if(!el) return; el.type = el.type === 'password' ? 'text' : 'password'; }
+
+/* init on load */
+window.addEventListener('load', ()=>{
+  const blob = readEncryptedBlob();
+  if(blob){
+    // encrypted data exists — show locked UI for unlock
+    hideAppUI();
+  } else {
+    // no storage yet — show create UI but keep app UI hidden until create/unlock
+    hideAppUI();
+  }
+  // attempt to register service worker (optional)
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  }
+});
+
+/* expose a few functions globally for console testing */
+window.computeLoanAggregates = computeLoanAggregates;
+window.generate6MonthPlan = generate6MonthPlan;
+window.renderAll = renderAll;
+window.exportEncryptedBackup = exportEncryptedBackup;
+window.saveState = saveState;
 </script>
 </body>
 </html>
