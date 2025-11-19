@@ -1,118 +1,231 @@
-
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Debt Tracker — Full</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="manifest" href="manifest.json" />
-  <style> 
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial; margin:0; padding:16px; max-width:900px; margin-left:auto; margin-right:auto; background:#fff; color:#111 }
-    header { display:flex; align-items:center; gap:12px; }
-    h1 { font-size:20px; margin:0; color:#b45309; }
-    .box { background:#f8fafc; border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
-    input, button, select, textarea { padding:10px; margin-top:8px; width:100%; box-sizing:border-box; border-radius:8px; border:1px solid #ddd; }
-    button.primary { background:#f59e0b; color:white; border:none; font-weight:600; padding:10px; border-radius:8px; }
-    button.danger { background:#ef4444; color:white; border:none; padding:10px; border-radius:8px; }
-    .entry { background:white; padding:10px; margin-bottom:8px; border-radius:8px; border:1px solid #eee; }
-    .small { font-size:12px; color:#666; }
-    .row { display:flex; gap:8px; }
-    .row > * { flex:1; }
-    .warning-modal { position:fixed; left:8px; right:8px; top:18%; background:#b91c1c; color:white; padding:18px; border-radius:12px; z-index:9999; box-shadow:0 8px 30px rgba(0,0,0,0.4); display:none; }
-    canvas { width:100% !important; height:180px !important; }
-    footer { text-align:center; font-size:12px; color:#666; margin-top:20px; }
-  </style>
-  <script>
-    if("serviceWorker" in navigator) navigator.serviceWorker.register('service-worker.js').catch(()=>{});
-  </script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Debt Tracker — Premium</title>
+<link rel="manifest" href="manifest.json" />
+<style>
+  :root{
+    --bg: #0f172a; /* dark navy */
+    --card: #0b1220;
+    --muted: #94a3b8;
+    --accent: #f59e0b; /* amber */
+    --accent-2: #fb923c; /* orange */
+    --glass: rgba(255,255,255,0.04);
+    --success: #10b981;
+    --danger: #ef4444;
+    --radius: 14px;
+  }
+  /* Reset & body */
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#071029 0%, #071a2a 100%);color:#e6eef8}
+  .container{max-width:980px;margin:18px auto;padding:18px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#052024}
+  h1{font-size:18px;margin:0}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+
+  /* Cards */
+  .grid{display:grid;grid-template-columns:1fr 420px;gap:16px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:14px;box-shadow:0 6px 18px rgba(2,6,23,0.6);}
+  .small{font-size:13px;color:var(--muted)}
+
+  /* Locked UI (center column) */
+  .locked {display:flex;flex-direction:column;gap:12px;padding:18px}
+  label.small{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+  input, select, button, textarea{border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px;color:#e6eef8;outline:none}
+  .row{display:flex;gap:8px}
+  .row > *{flex:1}
+  button.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:none;color:#07122a;padding:10px;border-radius:10px;font-weight:700}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+
+
+  /* Right column dashboard */
+  .metric{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));margin-bottom:10px}
+  .metric h3{margin:0;font-size:14px}
+  .metric .val{font-weight:700;font-size:16px;color:var(--accent)}
+
+  canvas{width:100%;height:160px;border-radius:8px;background:transparent}
+
+  /* History */
+  .history-list{max-height:280px;overflow:auto;padding-right:6px}
+  .entry{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);margin-bottom:8px}
+  .entry .meta{font-size:13px;color:var(--muted)}
+
+  footer{margin-top:14px;text-align:center;color:var(--muted);font-size:13px}
+  @media (max-width:900px){.grid{grid-template-columns:1fr;}.brand h1{font-size:16px}}
+</style>
 </head>
 <body>
-  <header><h1>Debt Tracker — Secure</h1></header>
+<div class="container">
+  <header>
+    <div class="brand">
+      <div class="logo">DT</div>
+      <div>
+        <h1>Debt Tracker — Premium</h1>
+        <p class="lead">Secure offline app — AES-256 encryption. Goal: move from debt to savings.</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="toggleTheme" class="ghost">Dark</button>
+      <button id="showAbout" class="ghost">About</button>
+    </div>
+  </header>
 
-  <div id="lockedUI" class="box">
-    <p><b>Secure Storage</b></p>
-    <input id="newPass1" placeholder="Create passphrase (first time)">
-    <input id="newPass2" placeholder="Confirm passphrase">
-    <button id="createBtn" class="primary">Create Encrypted Storage</button>
-    <hr>
-    <input id="passphrase" placeholder="Unlock with passphrase">
-    <button id="unlockBtn">Unlock</button>
-    <p class="small">Passphrase derives encryption key. If forgotten, data cannot be recovered.</p>
+  <div class="grid">
+    <!-- LEFT: Main controls -->
+    <div>
+      <div class="card locked" id="lockedUI">
+        <div>
+          <strong style="font-size:15px">Secure Storage — Setup</strong>
+          <div class="small" style="margin-top:6px">Create a <strong>Security Password</strong> to encrypt your financial data locally. This password never leaves your device. If lost, data cannot be recovered.</div>
+        </div>
+
+        <div>
+          <label class="small">Create Security Password</label>
+          <div class="row">
+            <input id="newPass1" type="password" placeholder="Enter new Security Password" autocomplete="new-password">
+            <button id="toggleNew1" class="ghost">👁️</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="small">Confirm Security Password</label>
+          <div class="row">
+            <input id="newPass2" type="password" placeholder="Confirm Security Password" autocomplete="new-password">
+            <button id="toggleNew2" class="ghost">👁️</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px">
+          <button id="createBtn" class="primary">Create Encrypted Storage</button>
+          <button id="recoverHelp" class="ghost">Need help?</button>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+        <div>
+          <strong style="font-size:15px">Unlock Storage</strong>
+          <div class="small" style="margin-top:6px">Enter your Security Password to unlock your encrypted data.</div>
+        </div>
+
+        <div style="margin-top:8px">
+          <label class="small">Security Password</label>
+          <div class="row">
+            <input id="passphrase" type="password" placeholder="Enter Security Password to unlock" autocomplete="current-password">
+            <button id="toggleUnlock" class="ghost">👁️</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button id="unlockBtn" class="primary">Unlock</button>
+            <button id="wipeBtn" class="ghost">Factory Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <strong>Onboarding — Quick Profile</strong>
+        <div class="small" style="margin-top:8px">Enter your monthly income and active EMIs to get a tailored plan.</div>
+        <div style="margin-top:10px">
+          <label class="small">Monthly Net Income (₹)</label>
+          <input id="income" type="number" placeholder="e.g., 120000">
+        </div>
+        <div style="margin-top:8px">
+          <label class="small">Total Monthly EMI (₹)</label>
+          <input id="emi" type="number" placeholder="e.g., 25951">
+        </div>
+        <div style="margin-top:8px">
+          <label class="small">Fixed Needs Total (₹)</label>
+          <input id="fixedNeeds" type="number" placeholder="Rent + utilities e.g., 30000">
+        </div>
+        <div style="margin-top:8px">
+          <label class="small">Target months to be debt-free</label>
+          <input id="targetMonths" type="number" placeholder="e.g., 18">
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="saveProfile" class="primary">Save Profile</button>
+          <button id="exportBtn" class="ghost">Export Backup</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <strong>Add Loan</strong>
+        <div style="margin-top:8px" class="small">Segregate loans: Personal, Home, Vehicle, Credit card, Consumer</div>
+        <div style="margin-top:8px" class="row">
+          <input id="loanType" placeholder="Type e.g., Personal">
+          <input id="loanOutstanding" type="number" placeholder="Outstanding (₹)">
+        </div>
+        <div style="margin-top:8px" class="row">
+          <input id="loanEMI" type="number" placeholder="EMI (₹)">
+          <input id="loanRate" type="number" placeholder="Rate (%)">
+        </div>
+        <div style="margin-top:8px" class="row">
+          <input id="loanTerm" type="number" placeholder="Remaining months">
+          <input id="loanName" placeholder="Lender name">
+        </div>
+        <div style="margin-top:10px">
+          <button id="addLoanBtn" class="primary">Add Loan</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <strong>Add Expense</strong>
+        <div style="margin-top:8px" class="small">Track daily spending; app will flag waste merchants</div>
+        <div style="margin-top:8px">
+          <input id="expMerchant" placeholder="Merchant (e.g., Swiggy)">
+        </div>
+        <div style="margin-top:8px" class="row">
+          <input id="expAmount" type="number" placeholder="Amount (₹)">
+          <input id="expDate" type="date">
+        </div>
+        <div style="margin-top:8px">
+          <input id="expCategory" placeholder="Category (Food/Travel/Shopping)">
+        </div>
+        <div style="margin-top:10px">
+          <button id="addExpenseBtn" class="primary">Add Expense</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Dashboard -->
+    <aside>
+      <div class="card">
+        <div class="metric"><h3>Income</h3><div class="val" id="metricIncome">—</div></div>
+        <div class="metric"><h3>Total EMI</h3><div class="val" id="metricEMI">—</div></div>
+        <div class="metric"><h3>Total Debt</h3><div class="val" id="metricDebt">—</div></div>
+        <canvas id="donutCanvas"></canvas>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <strong>6-Month Action Plan</strong>
+        <div id="sixMonth" style="margin-top:8px" class="small"></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <strong>History</strong>
+        <div class="history-list" id="history"></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <strong>Security</strong>
+        <div class="small">Export and keep your backup safe. All backups are encrypted with your Security Password.</div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="downloadBackup" class="ghost">Download Backup</button>
+          <button id="clearData" class="ghost">Clear Local Data</button>
+        </div>
+      </div>
+    </aside>
   </div>
 
-  <div id="appUI" style="display:none;">
-    <div class="box">
-      <p><b>Onboarding / Quick Profile</b></p>
-      <label>Guidance Mode</label>
-      <select id="guidanceMode"><option value="strict">Strict</option><option value="balanced">Balanced</option><option value="soft" selected>Soft</option></select>
-      <label>Monthly Net Income (₹)</label>
-      <input id="income" type="number" placeholder="e.g., 120000">
-      <label>Total Monthly EMI (₹)</label>
-      <input id="emi" type="number" placeholder="e.g., 25951">
-      <label>Fixed Needs Total (₹)</label>
-      <input id="fixedNeeds" type="number" placeholder="Rent + utilities e.g., 30000">
-      <label>Target: months to become debt-free (goal)</label>
-      <input id="targetMonths" type="number" placeholder="e.g., 18">
-      <button id="saveProfile" class="primary">Save Profile & Compute Forecast</button>
-    </div>
+  <footer>Offline & encrypted • AES-256-GCM local encryption • No cloud unless you export encrypted backup</footer>
+</div>
 
-    <div class="box" id="dashboardBox">
-      <p><b>Dashboard</b></p>
-      <div id="buckets" class="small"></div>
-      <div id="limits" class="small"></div>
-      <div id="risk" class="small"></div>
-      <canvas id="donutCanvas"></canvas>
-      <div id="sixMonth" style="margin-top:8px;"></div>
-    </div>
-
-    <div class="box">
-      <p><b>Add Loan (optional)</b></p>
-      <div class="row"><input id="loanType" placeholder="Type (Personal / Home)"><input id="loanOutstanding" type="number" placeholder="Outstanding (₹)"></div>
-      <div class="row"><input id="loanEMI" type="number" placeholder="EMI (₹)"><input id="loanRate" type="number" placeholder="Rate (%)"></div>
-      <div class="row"><input id="loanTerm" type="number" placeholder="Remaining months"><input id="loanName" placeholder="Lender name"></div>
-      <button id="addLoanBtn" class="primary">Add Loan</button>
-    </div>
-
-    <div class="box">
-      <p><b>Add Expense</b></p>
-      <input id="expMerchant" placeholder="Merchant (e.g., Swiggy)">
-      <div class="row"><input id="expAmount" type="number" placeholder="Amount (₹)"><input id="expDate" type="date"></div>
-      <input id="expCategory" placeholder="Category (Food/Travel/Shopping)">
-      <button id="addExpenseBtn" class="primary">Add Expense</button>
-    </div>
-
-    <div class="box">
-      <p><b>Loans</b></p>
-      <div id="loanList"></div>
-    </div>
-
-    <div class="box">
-      <p><b>History</b></p>
-      <div id="history"></div>
-    </div>
-
-    <div class="box">
-      <p><b>Security & Backup</b></p>
-      <button id="exportBtn">Export Encrypted Backup</button>
-      <button id="wipeBtn" class="danger">Factory Reset</button>
-    </div>
-  </div>
-
-  <div id="warningModal" class="warning-modal">
-    <div id="warningText"></div>
-    <div style="margin-top:12px; display:flex; gap:8px;">
-      <button id="undoBtn" style="background:white;color:#b91c1c;border:none;padding:8px;border-radius:8px">Undo</button>
-      <button id="ignoreBtn" style="background:rgba(255,255,255,0.2);color:white;border:none;padding:8px;border-radius:8px">Ignore</button>
-    </div>
-  </div>
-
-  <footer>Offline & encrypted. No messages read. No cloud unless you export encrypted backup.</footer>
-
-<script>
-/* ----------------- Crypto helpers ----------------- */
+  <script>
+/* -------------------- Crypto & Storage -------------------- */
 const PBKDF2_ITER = 200000;
-const SALT_KEY = "debt_salt_v2";
-const ENCRYPTED_KEY = "debt_encrypted_v2";
+const SALT_KEY = "debt_salt_premium_v1";
+const ENCRYPTED_KEY = "debt_encrypted_premium_v1";
 
 function str2ab(s){ return new TextEncoder().encode(s); }
 function ab2str(ab){ return new TextDecoder().decode(ab); }
@@ -140,134 +253,59 @@ function readEncryptedBlob(){ const v = localStorage.getItem(ENCRYPTED_KEY); ret
 function storeSalt(buf){ localStorage.setItem(SALT_KEY, ab2b64(buf)); }
 function readSalt(){ const s = localStorage.getItem(SALT_KEY); return s?b642ab(s):null; }
 
-/* ----------------- App state ----------------- */
+/* -------------------- App state -------------------- */
 let unlockedKey = null;
 let appState = {
-  incomeMonthly:120000,
+  incomeMonthly:0,
   incomeYearlyExtras:[],
   loans:[],
-  fixedNeedsTotal:30000,
+  fixedNeedsTotal:0,
   guidanceMode:'soft',
   riskScore:70,
   history:[],
-  settings:{autoLockMin:5, wasteMerchants:["swiggy","zomato","amazon","flipkart","myntra","ajio","blinkit","bajaj","meesho","nykaa"], tone:1},
-  userGoals:{targetDebtFreeMonths:18, emergencyFundMonths:3}
+  settings:{autoLockMin:5,wasteMerchants:["swiggy","zomato","amazon","flipkart","myntra","ajio","blinkit","bajaj","meesho","nykaa"],tone:1},
+  userGoals:{targetDebtFreeMonths:18,emergencyFundMonths:3}
 };
 
-/* ----------------- Utility ----------------- */
-function uid(prefix='id'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
-function money(x){ return '₹' + (Math.round(x)).toLocaleString('en-IN'); }
-function daysInMonth(y,m){ return new Date(y,m,0).getDate(); }
+/* -------------------- Utilities -------------------- */
+function uid(prefix='id'){ return prefix+'_'+Math.random().toString(36).slice(2,9); }
+function money(x){ return '₹'+(Math.round(x)).toLocaleString('en-IN'); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
+function daysInMonth(y,m){ return new Date(y,m,0).getDate(); }
 
-/* ----------------- Loan & budgeting logic (simplified but functional) ----------------- */
+/* -------------------- Budgeting & Loans -------------------- */
 function amortizationCalc(P, annualRate, n){
-  P = Number(P); annualRate = Number(annualRate); n = Number(n);
-  if(n<=0 || P<=0) return { monthlyPayment:0, monthsRemaining:0, totalInterestRemaining:0 };
+  P=Number(P); annualRate=Number(annualRate); n=Number(n);
+  if(n<=0||P<=0) return {monthlyPayment:0,monthsRemaining:0,totalInterestRemaining:0};
   const r = annualRate/100/12;
-  const EMI = r===0 ? P/n : (P * r * Math.pow(1+r,n)) / (Math.pow(1+r,n)-1);
-  return { monthlyPayment: EMI, monthsRemaining: n, totalInterestRemaining: (EMI*n)-P };
+  const EMI = r===0?P/n:(P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+  return {monthlyPayment:EMI,monthsRemaining:n,totalInterestRemaining:(EMI*n)-P};
 }
 function computeLoanAggregates(){
-  let totalOutstanding=0, totalEMI=0, totalInterest=0;
-  appState.loans.forEach(ln=>{
-    totalOutstanding += Number(ln.principalOutstanding||0);
-    totalEMI += Number(ln.emi||0);
-    const a = amortizationCalc(Number(ln.principalOutstanding||0), Number(ln.rate||0), Number(ln.remainingMonths||0));
-    totalInterest += a.totalInterestRemaining;
-  });
-  return { totalOutstanding, totalEMI, totalInterest };
+  let totalOutstanding=0,totalEMI=0,totalInterest=0;
+  appState.loans.forEach(ln=>{ totalOutstanding+=Number(ln.principalOutstanding||0); totalEMI+=Number(ln.emi||0); const a=amortizationCalc(Number(ln.principalOutstanding||0),Number(ln.rate||0),Number(ln.remainingMonths||0)); totalInterest+=a.totalInterestRemaining; });
+  return {totalOutstanding,totalEMI,totalInterest};
 }
 function computeBucketsDetailed(){
   const income = Number(appState.incomeMonthly||0);
-  const needs = Math.max(0.5 * income, Number(appState.fixedNeedsTotal||0));
-  const wants = 0.3 * income;
-  const savings = 0.2 * income;
+  const needs = Math.max(0.5*income, Number(appState.fixedNeedsTotal||0));
+  const wants = 0.3*income;
+  const savings = 0.2*income;
   const loanEMI = computeLoanAggregates().totalEMI;
   const adjustedNeeds = needs + loanEMI;
   const monthlySafeSpend = adjustedNeeds + wants;
-  const d = new Date();
-  const days = daysInMonth(d.getFullYear(), d.getMonth()+1);
-  return { income, needs, wants, savings, loanEMI, adjustedNeeds, monthlySafeSpend, dailySafe: monthlySafeSpend/days, weeklySafe: monthlySafeSpend/4 };
+  const d = new Date(); const days = daysInMonth(d.getFullYear(), d.getMonth()+1);
+  return {income,needs,wants,savings,loanEMI,adjustedNeeds,monthlySafeSpend,dailySafe:monthlySafeSpend/days,weeklySafe:monthlySafeSpend/4};
 }
 
-/* ----------------- Spending patterns ----------------- */
-function spendingPatterns(){
-  const now = new Date();
-  const last30 = new Date(); last30.setDate(now.getDate()-30);
-  const entries30 = appState.history.filter(h => new Date(h.date) >= last30);
-  const total30 = entries30.reduce((s,e)=>s+Number(e.amount||0),0);
-  const avgDaily = total30/30;
-  const catTotals = {};
-  appState.history.forEach(e=>{
-    const c = (e.category||'Misc').toLowerCase();
-    catTotals[c] = (catTotals[c]||0) + Number(e.amount||0);
-  });
-  return { total30, avgDaily, catTotals };
-}
+/* -------------------- Patterns, Risk & Forecast -------------------- */
+function spendingPatterns(){ const now=new Date(); const last30=new Date(); last30.setDate(now.getDate()-30); const entries30=appState.history.filter(h=>new Date(h.date)>=last30); const total30=entries30.reduce((s,e)=>s+Number(e.amount||0),0); const avgDaily=total30/30; const catTotals={}; appState.history.forEach(e=>{ const c=(e.category||'Misc').toLowerCase(); catTotals[c]=(catTotals[c]||0)+Number(e.amount||0); }); return {total30,avgDaily,catTotals}; }
+function generate6MonthPlan(){ const b=computeBucketsDetailed(); const agg=computeLoanAggregates(); const targetMonths=Number(appState.userGoals.targetDebtFreeMonths||18); const currentTotalOutstanding=agg.totalOutstanding; const neededMonthlyPrincipal=currentTotalOutstanding/Math.max(1,targetMonths); const currentEMI=agg.totalEMI; const approxExtraNeeded=Math.max(0, neededMonthlyPrincipal - Math.max(0,currentEMI*0.6)); let monthExtra=Math.max(0,Math.round(approxExtraNeeded*0.6)); const plan=[]; for(let i=1;i<=6;i++){ const suggestedCut=Math.round(b.wants*(0.08+0.05*(i-1))); const suggestedExtra=monthExtra+Math.round(suggestedCut*0.6); plan.push({monthIndex:i,suggestedCut,suggestedExtra,projectedDebtReduction:suggestedExtra*i}); } return {plan,neededMonthlyPrincipal,approxExtraNeeded}; }
+function yearlyForecast(){ const incomeMonthly=Number(appState.incomeMonthly||0); const incomeYear=incomeMonthly*12 + (appState.incomeYearlyExtras||[]).reduce((s,e)=>s+Number(e.amount||0),0); const b=computeBucketsDetailed(); const agg=computeLoanAggregates(); const patterns=spendingPatterns(); const wasteMerch=appState.settings.wasteMerchants||[]; const wasteTotalLast30=appState.history.filter(h=>wasteMerch.some(w=>(h.merchant||'').toLowerCase().includes(w))).reduce((s,e)=>s+Number(e.amount||0),0); const wasteYearlyProjection=(wasteTotalLast30/30)*365; const monthsToPayOff=agg.totalOutstanding===0?0:Math.ceil(agg.totalOutstanding/Math.max(1,agg.totalEMI*0.6)); return {incomeYear,b,agg,patterns,wasteYearlyProjection,monthsToPayOff}; }
+function computeRiskScore(){ let score=80; const agg=computeLoanAggregates(); const b=computeBucketsDetailed(); const patterns=spendingPatterns(); const emiRatio=agg.totalEMI/Math.max(1,appState.incomeMonthly); if(emiRatio>0.4) score-=25; else if(emiRatio>0.25) score-=10; const wasteMerch=appState.settings.wasteMerchants||[]; const waste30=appState.history.filter(h=>wasteMerch.some(w=>(h.merchant||'').toLowerCase().includes(w))).reduce((s,e)=>s+Number(e.amount||0),0); const wasteRatio=waste30/Math.max(1,appState.incomeMonthly); if(wasteRatio>0.15) score-=20; else if(wasteRatio>0.08) score-=8; const lastMonthSpent=appState.history.filter(h=>isInCurrentMonth(h.date)).reduce((s,e)=>s+Number(e.amount||0),0); const savedEstimate=Math.max(0,appState.incomeMonthly-lastMonthSpent); const saveRatio=savedEstimate/Math.max(1,appState.incomeMonthly); if(saveRatio<0.12) score-=20; else if(saveRatio<0.18) score-=8; score=Math.max(0,Math.min(100,Math.round(score))); appState.riskScore=score; return score; }
+function isInCurrentMonth(datestr){ const d=new Date(datestr); const now=new Date(); return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth(); }
 
-/* ----------------- 6-month plan & yearly forecast ----------------- */
-function generate6MonthPlan(){
-  const b = computeBucketsDetailed();
-  const patterns = spendingPatterns();
-  const agg = computeLoanAggregates();
-  const targetMonths = Number(appState.userGoals.targetDebtFreeMonths||18);
-  const currentTotalOutstanding = agg.totalOutstanding;
-  const neededMonthlyPrincipal = currentTotalOutstanding / Math.max(1,targetMonths);
-  const currentEMI = agg.totalEMI;
-  const approxExtraNeeded = Math.max(0, neededMonthlyPrincipal - Math.max(0, currentEMI*0.6));
-  let monthExtra = Math.max(0, Math.round(approxExtraNeeded*0.6));
-  const plan = [];
-  for(let i=1;i<=6;i++){
-    const suggestedCut = Math.round(b.wants * (0.08 + 0.05*(i-1)));
-    const suggestedExtra = monthExtra + Math.round(suggestedCut * 0.6);
-    plan.push({ monthIndex:i, suggestedCut, suggestedExtra, projectedDebtReduction: suggestedExtra*i });
-  }
-  return { plan, neededMonthlyPrincipal, approxExtraNeeded };
-}
-function yearlyForecast(){
-  const incomeMonthly = Number(appState.incomeMonthly||0);
-  const incomeYear = incomeMonthly*12 + (appState.incomeYearlyExtras||[]).reduce((s,e)=>s+Number(e.amount||0),0);
-  const b = computeBucketsDetailed();
-  const agg = computeLoanAggregates();
-  const patterns = spendingPatterns();
-  const wasteMerch = appState.settings.wasteMerchants||[];
-  const wasteTotalLast30 = appState.history.filter(h => wasteMerch.some(w=> (h.merchant||'').toLowerCase().includes(w))).reduce((s,e)=>s+Number(e.amount||0),0);
-  const wasteYearlyProjection = (wasteTotalLast30/30)*365;
-  const monthsToPayOff = agg.totalOutstanding===0?0:Math.ceil(agg.totalOutstanding/Math.max(1, agg.totalEMI*0.6));
-  return { incomeYear, b, agg, patterns, wasteYearlyProjection, monthsToPayOff };
-}
-
-/* ----------------- Risk engine ----------------- */
-function computeRiskScore(){
-  let score = 80;
-  const agg = computeLoanAggregates();
-  const b = computeBucketsDetailed();
-  const patterns = spendingPatterns();
-  const emiRatio = agg.totalEMI / Math.max(1, appState.incomeMonthly);
-  if(emiRatio > 0.4) score -= 25;
-  else if(emiRatio > 0.25) score -= 10;
-  const wasteMerch = appState.settings.wasteMerchants || [];
-  const waste30 = appState.history.filter(h => wasteMerch.some(w=> (h.merchant||'').toLowerCase().includes(w))).reduce((s,e)=>s+Number(e.amount||0),0);
-  const wasteRatio = waste30 / Math.max(1, appState.incomeMonthly);
-  if(wasteRatio > 0.15) score -= 20;
-  else if(wasteRatio > 0.08) score -= 8;
-  const lastMonthSpent = appState.history.filter(h => isInCurrentMonth(h.date)).reduce((s,e)=>s+Number(e.amount||0),0);
-  const savedEstimate = Math.max(0, appState.incomeMonthly - lastMonthSpent);
-  const saveRatio = savedEstimate / Math.max(1, appState.incomeMonthly);
-  if(saveRatio < 0.12) score -= 20;
-  else if(saveRatio < 0.18) score -= 8;
-  score = Math.max(0, Math.min(100, Math.round(score)));
-  appState.riskScore = score;
-  return score;
-}
-function isInCurrentMonth(datestr){
-  const d = new Date(datestr);
-  const now = new Date();
-  return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
-}
-
-/* ----------------- Persistence: encrypt & load ----------------- */
+/* -------------------- Persistence, export & UI actions -------------------- */
 async function initializeNew(pass){
   const salt = crypto.getRandomValues(new Uint8Array(16));
   storeSalt(salt.buffer);
@@ -284,222 +322,37 @@ async function unlockWithPass(pass){
   appState = obj;
   renderAll();
 }
-async function saveState(){
-  if(!unlockedKey) throw new Error('Not unlocked');
-  const enc = await encryptObject(appState, unlockedKey);
-  saveEncryptedBlob(enc);
-}
+async function saveState(){ if(!unlockedKey) throw new Error('Not unlocked'); const enc = await encryptObject(appState, unlockedKey); saveEncryptedBlob(enc); }
+
 function exportEncryptedBackup(){
-  const blob = readEncryptedBlob();
-  if(!blob){ alert('No data to export'); return; }
-  const dataStr = JSON.stringify({ salt: localStorage.getItem(SALT_KEY), blob });
-  const url = URL.createObjectURL(new Blob([dataStr], { type:'application/json' }));
-  const a = document.createElement('a'); a.href = url; a.download='debt_backup_encrypted.json'; a.click(); URL.revokeObjectURL(url);
+  const blob = readEncryptedBlob(); if(!blob){ alert('No data to export'); return; } const dataStr = JSON.stringify({ salt: localStorage.getItem(SALT_KEY), blob }); const url = URL.createObjectURL(new Blob([dataStr], { type:'application/json' })); const a = document.createElement('a'); a.href = url; a.download='debt_backup_encrypted.json'; a.click(); URL.revokeObjectURL(url);
 }
 
-/* ----------------- UI handlers ----------------- */
 document.getElementById('createBtn').addEventListener('click', async ()=>{
   const p1 = document.getElementById('newPass1').value;
   const p2 = document.getElementById('newPass2').value;
-  if(!p1||!p2){ alert('Enter passphrase twice'); return; }
-  if(p1!==p2){ alert('Passphrases do not match'); return; }
+  if(!p1||!p2){ alert('Enter Security Password twice'); return; }
+  if(p1!==p2){ alert('Security Passwords do not match'); return; }
   await initializeNew(p1);
   document.getElementById('lockedUI').style.display='none';
   document.getElementById('appUI').style.display='block';
-  renderAll();
-  alert('Encrypted storage created. Remember your passphrase.');
-});
-document.getElementById('unlockBtn').addEventListener('click', async ()=>{
-  const p = document.getElementById('passphrase').value;
-  try{ await unlockWithPass(p); document.getElementById('lockedUI').style.display='none'; document.getElementById('appUI').style.display='block'; document.getElementById('passphrase').value=''; } catch(e){ alert('Unlock failed: '+e.message); }
-});
-document.getElementById('saveProfile').addEventListener('click', ()=>{
-  appState.incomeMonthly = Number(document.getElementById('income').value) || appState.incomeMonthly;
-  appState.loansMonthlyEMI = Number(document.getElementById('emi').value) || appState.loansMonthlyEMI;
-  appState.fixedNeedsTotal = Number(document.getElementById('fixedNeeds').value) || appState.fixedNeedsTotal;
-  appState.guidanceMode = document.getElementById('guidanceMode').value || appState.guidanceMode;
-  appState.userGoals.targetDebtFreeMonths = Number(document.getElementById('targetMonths').value) || appState.userGoals.targetDebtFreeMonths;
-  saveState().then(()=>{ renderAll(); alert('Profile saved'); }).catch(e=>alert('Save failed: '+e.message));
-});
-
-/* Add loan */
-document.getElementById('addLoanBtn').addEventListener('click', ()=>{
-  const t = document.getElementById('loanType').value || 'Personal';
-  const p = Number(document.getElementById('loanOutstanding').value) || 0;
-  const emi = Number(document.getElementById('loanEMI').value) || 0;
-  const rate = Number(document.getElementById('loanRate').value) || 0;
-  const term = Number(document.getElementById('loanTerm').value) || 0;
-  const name = document.getElementById('loanName').value || '';
-  const ln = { id:uid('loan'), type:t, lender:name, principalOutstanding:p, emi:emi, rate:rate, remainingMonths:term };
-  appState.loans.push(ln);
-  saveState().then(()=>{ renderAll(); alert('Loan added'); }).catch(e=>alert('Save failed: '+e.message));
-});
-
-/* add expense */
-document.getElementById('addExpenseBtn').addEventListener('click', ()=>{
-  const m = document.getElementById('expMerchant').value || 'Unknown';
-  const amt = Number(document.getElementById('expAmount').value) || 0;
-  const d = document.getElementById('expDate').value || todayISO();
-  const cat = document.getElementById('expCategory').value || 'Misc';
-  if(!amt){ alert('Enter amount'); return; }
-  const e = { id:uid('e'), merchant:m, amount:amt, date:d, category:cat };
-  addExpenseAndEnforce(e);
-  document.getElementById('expMerchant').value=''; document.getElementById('expAmount').value=''; document.getElementById('expDate').value=''; document.getElementById('expCategory').value='';
-});
-
-/* export & wipe */
-document.getElementById('exportBtn').addEventListener('click', ()=> exportEncryptedBackup());
-document.getElementById('wipeBtn').addEventListener('click', ()=>{ if(confirm('Clear all data?')){ localStorage.removeItem(SALT_KEY); localStorage.removeItem(ENCRYPTED_KEY); appState = { incomeMonthly:120000, incomeYearlyExtras:[], loans:[], fixedNeedsTotal:30000, guidanceMode:'soft', riskScore:70, history:[], settings:{autoLockMin:5, wasteMerchants:["swiggy","zomato","amazon","flipkart","myntra","ajio","blinkit","bajaj","meesho","nykaa"], tone:1}, userGoals:{targetDebtFreeMonths:18, emergencyFundMonths:3} }; document.getElementById('lockedUI').style.display='block'; document.getElementById('appUI').style.display='none'; alert('Data cleared'); } });
-
-/* ----------------- Expense enforcement & warnings ----------------- */
-function isWasteMerchant(m){ if(!m) return false; const mm = m.toLowerCase(); return (appState.settings.wasteMerchants||[]).some(w=> mm.includes(w)); }
-function changeRisk(delta){ appState.riskScore = Math.max(0, Math.min(100, Math.round((appState.riskScore||70)+delta))); saveState().then(()=>renderAll()); }
-
-function showWarningModal(msg, lastIdx){ document.getElementById('warningText').innerText = msg; const mw = document.getElementById('warningModal'); mw.style.display='block'; mw.dataset.lastIdx = lastIdx!==undefined? lastIdx : ''; }
-document.getElementById('undoBtn').addEventListener('click', ()=>{ const idx = document.getElementById('warningModal').dataset.lastIdx; if(idx!==''){ const id = idx; appState.history = appState.history.filter(h=>h.id!==id); saveState().then(()=>renderAll()); } document.getElementById('warningModal').style.display='none'; });
-document.getElementById('ignoreBtn').addEventListener('click', ()=>{ document.getElementById('warningModal').style.display='none'; });
-
-function addExpenseAndEnforce(exp){
-  appState.history.unshift(exp);
-  const b = computeBucketsDetailed();
-  const now = new Date(exp.date);
-  const month = now.getMonth(); const year = now.getFullYear();
-  const monthEntries = appState.history.filter(h=>{ const d=new Date(h.date); return d.getMonth()===month && d.getFullYear()===year; });
-  const monthSpent = monthEntries.reduce((s,e)=>s+Number(e.amount||0),0);
-  const todayEntries = appState.history.filter(h=> new Date(h.date).toDateString() === new Date(exp.date).toDateString());
-  const todaySpent = todayEntries.reduce((s,e)=>s+Number(e.amount||0),0);
-  const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate()-7);
-  const weekEntries = appState.history.filter(h=> new Date(h.date) >= sevenDaysAgo);
-  const weekSpent = weekEntries.reduce((s,e)=>s+Number(e.amount||0),0);
-  let violated=false;
-  if(todaySpent > b.dailySafe){
-    violated=true; showWarningModal('STOP. You crossed your DAILY safe spend by ₹'+Math.round(todaySpent - b.dailySafe)+'. This is dangerous.', exp.id);
-    changeRisk(-2);
-  }
-  if(weekSpent > b.weeklySafe){
-    violated=true; showWarningModal('ALERT. Weekly spend exceeded safe limit by ₹'+Math.round(weekSpent - b.weeklySafe)+'. Stop spending immediately.', exp.id);
-    changeRisk(-5);
-  }
-  if(monthSpent > b.monthlySafeSpend){
-    violated=true; showWarningModal('RISK: You exceeded your MONTHLY safe spend by ₹'+Math.round(monthSpent - b.monthlySafeSpend)+'. This delays your debt-free date.', exp.id);
-    changeRisk(-10);
-  }
-  if(isWasteMerchant(exp.merchant)){
-    violated=true; showWarningModal('WASTE SPEND DETECTED: This purchase is unnecessary and harms your financial goals.', exp.id);
-    changeRisk(-7);
-  }
   saveState().then(()=>renderAll());
-  return { violated, monthSpent, todaySpent, weekSpent };
-}
-
-/* ----------------- Rendering ----------------- */
-function drawDonutCanvas(id, vals){
-  const c = document.getElementById(id);
-  if(!c) return;
-  const ctx = c.getContext('2d');
-  const w = c.width = c.offsetWidth;
-  const h = c.height = 180;
-  ctx.clearRect(0,0,w,h);
-  const total = vals.reduce((s,v)=>s+v,0)||1;
-  let start=-0.5*Math.PI;
-  const cx=w/2, cy=h/2, r=Math.min(w,h)/3;
-  const cols=['#f59e0b','#f97316','#facc15'];
-  for(let i=0;i<vals.length;i++){
-    const slice = (vals[i]/total)*(2*Math.PI);
-    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,start+slice); ctx.closePath();
-    ctx.fillStyle=cols[i%cols.length]; ctx.fill();
-    start+=slice;
-  }
-  ctx.fillStyle='#222'; ctx.font='16px system-ui'; ctx.textAlign='center'; ctx.fillText('50-30-20',cx,cy+6);
-}
-
-function renderAll(){
-  // dashboard
-  const b = computeBucketsDetailed();
-  const agg = computeLoanAggregates();
-  document.getElementById('buckets').innerHTML = `Income: <b>${money(b.income)}</b> · EMI: <b>${money(agg.totalEMI)}</b> · Debt: <b>${money(agg.totalOutstanding)}</b>`;
-  document.getElementById('limits').innerHTML = `Monthly Safe Spend: <b>${money(b.monthlySafeSpend)}</b> · Daily Safe: <b>${money(b.dailySafe)}</b> · Weekly Safe: <b>${money(b.weeklySafe)}</b>`;
-  drawDonutCanvas('donutCanvas',[b.adjustedNeeds||0, b.wants||0, b.savings||0]);
-  renderRisk();
-  renderHistory();
-  renderLoans();
-  render6Month();
-}
-
-function renderHistory(){
-  const container = document.getElementById('history'); container.innerHTML='';
-  appState.history.forEach(h=>{
-    const div = document.createElement('div'); div.className='entry';
-    const wasted = isWasteMerchant(h.merchant);
-    div.innerHTML = `<div style="display:flex;justify-content:space-between;"><div><b>${money(h.amount)}</b> · ${escapeHtml(h.merchant)}</div><div class="small">${h.date}</div></div>
-                     <div class="small">${escapeHtml(h.category||'Misc')}</div>
-                     <div style="margin-top:8px;display:flex;gap:8px;">
-                       <button onclick="undoById('${h.id}')" style="padding:8px;border-radius:8px">Undo</button>
-                       <button onclick="markNeed('${h.id}')" style="padding:8px;border-radius:8px">Mark Need</button>
-                       <button onclick="markWant('${h.id}')" style="padding:8px;border-radius:8px">${wasted?'Unnecessary':'Mark Want'}</button>
-                     </div>`;
-    container.appendChild(div);
-  });
-}
-function undoById(id){ appState.history = appState.history.filter(h=>h.id!==id); saveState().then(()=>renderAll()); }
-function markNeed(id){ const it = appState.history.find(h=>h.id===id); if(it){ it.category='Need'; saveState().then(()=>renderAll()); } }
-function markWant(id){ const it = appState.history.find(h=>h.id===id); if(it){ it.category='Want'; saveState().then(()=>renderAll()); } }
-
-function renderLoans(){
-  const el = document.getElementById('loanList'); el.innerHTML='';
-  appState.loans.forEach(ln=>{
-    const a = amortizationCalc(ln.principalOutstanding, ln.rate, ln.remainingMonths);
-    const div = document.createElement('div'); div.className='entry';
-    div.innerHTML = `<div style="display:flex;justify-content:space-between"><div><b>${escapeHtml(ln.type||'Loan')}</b> · ${escapeHtml(ln.lender||'')}</div><div class="small">EMI: ${money(ln.emi)}</div></div>
-                     <div class="small">Outstanding: ${money(ln.principalOutstanding)} · Rate: ${ln.rate}% · Remain: ${ln.remainingMonths} months</div>
-                     <div style="margin-top:8px;display:flex;gap:8px;">
-                      <button onclick="prepayPrompt('${ln.id}')" style="padding:8px;border-radius:8px">Add Extra Payment</button>
-                      <button onclick="removeLoan('${ln.id}')" style="padding:8px;border-radius:8px">Remove</button>
-                     </div>`;
-    el.appendChild(div);
-  });
-}
-function prepayPrompt(id){
-  const amt = prompt('Enter extra principal payment amount (₹):');
-  if(!amt) return;
-  const ln = appState.loans.find(l=>l.id===id);
-  if(!ln) return;
-  ln.principalOutstanding = Math.max(0, Number(ln.principalOutstanding) - Number(amt));
-  saveState().then(()=>renderAll());
-}
-function removeLoan(id){ if(confirm('Remove loan?')){ appState.loans = appState.loans.filter(l=>l.id!==id); saveState().then(()=>renderAll()); } }
-
-function renderRisk(){
-  const el = document.getElementById('risk');
-  const score = computeRiskScore();
-  let html = '';
-  if(score < 20) html = `<div style="color:#fff;background:#b91c1c;padding:10px;border-radius:8px"><b>RISK: ${score}</b> — YOU ARE IN SERIOUS FINANCIAL DANGER. Stop all wants NOW.</div>`;
-  else if(score < 40) html = `<div style="color:#fff;background:#ef4444;padding:10px;border-radius:8px"><b>RISK: ${score}</b> — High risk. Aggressive cuts needed.</div>`;
-  else if(score < 60) html = `<div style="color:#111;background:#f59e0b;padding:10px;border-radius:8px"><b>RISK: ${score}</b> — Moderate risk. Reduce wants and increase savings.</div>`;
-  else html = `<div style="color:#064e3b;background:#bbf7d0;padding:10px;border-radius:8px"><b>RISK: ${score}</b> — Low risk. Keep the discipline.</div>`;
-  el.innerHTML = html;
-}
-
-function render6Month(){
-  const container = document.getElementById('sixMonth'); container.innerHTML='';
-  const plan = generate6MonthPlan();
-  let out = `<div class="small"><b>6-Month Action Plan</b></div>`;
-  plan.plan.forEach(p=>{
-    out += `<div class="entry"><div><b>Month ${p.monthIndex}</b></div><div class="small">Suggested cut from wants: ${money(p.suggestedCut)} · Suggested extra to loans: ${money(p.suggestedExtra)}</div></div>`;
-  });
-  container.innerHTML = out;
-}
-
-/* ----------------- helpers ----------------- */
-function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-/* ----------------- init UI state ----------------- */
-window.addEventListener('load', ()=>{
-  const blob = readEncryptedBlob();
-  if(blob){ document.getElementById('lockedUI').style.display='block'; document.getElementById('appUI').style.display='none'; } else { document.getElementById('lockedUI').style.display='block'; document.getElementById('appUI').style.display='none'; }
+  alert('Encrypted storage created. Remember your Security Password.');
 });
+document.getElementById('unlockBtn').addEventListener('click', async ()=>{ const p=document.getElementById('passphrase').value; try{ await unlockWithPass(p); document.getElementById('lockedUI').style.display='none'; document.getElementById('appUI').style.display='block'; document.getElementById('passphrase').value=''; }catch(e){ alert('Unlock failed: '+e.message);} });
 
-/* ----------------- end script ----------------- */
+document.getElementById('saveProfile').addEventListener('click', ()=>{ appState.incomeMonthly=Number(document.getElementById('income').value)||appState.incomeMonthly; appState.loansMonthlyEMI=Number(document.getElementById('emi').value)||appState.loansMonthlyEMI; appState.fixedNeedsTotal=Number(document.getElementById('fixedNeeds').value)||appState.fixedNeedsTotal; appState.guidanceMode=document.getElementById('guidanceMode')?.value||appState.guidanceMode; appState.userGoals.targetDebtFreeMonths=Number(document.getElementById('targetMonths').value)||appState.userGoals.targetDebtFreeMonths; saveState().then(()=>{ renderAll(); alert('Profile saved'); }).catch(e=>alert('Save failed: '+e.message)); });
+
+document.getElementById('addLoanBtn').addEventListener('click', ()=>{ const t=document.getElementById('loanType').value||'Personal'; const p=Number(document.getElementById('loanOutstanding').value)||0; const emi=Number(document.getElementById('loanEMI').value)||0; const rate=Number(document.getElementById('loanRate').value)||0; const term=Number(document.getElementById('loanTerm').value)||0; const name=document.getElementById('loanName').value||''; const ln={id:uid('loan'),type:t,lender:name,principalOutstanding:p,emi:emi,rate:rate,remainingMonths:term}; appState.loans.push(ln); saveState().then(()=>{ renderAll(); alert('Loan added'); }).catch(e=>alert('Save failed: '+e.message)); });
+
+document.getElementById('addExpenseBtn').addEventListener('click', ()=>{ const m=document.getElementById('expMerchant').value||'Unknown'; const amt=Number(document.getElementById('expAmount').value)||0; const d=document.getElementById('expDate').value||todayISO(); const cat=document.getElementById('expCategory').value||'Misc'; if(!amt){ alert('Enter amount'); return; } const e={id:uid('e'),merchant:m,amount:amt,date:d,category:cat}; addExpenseAndEnforce(e); document.getElementById('expMerchant').value=''; document.getElementById('expAmount').value=''; document.getElementById('expDate').value=''; document.getElementById('expCategory').value=''; });
+
+document.getElementById('downloadBackup').addEventListener('click', ()=> exportEncryptedBackup()); document.getElementById('clearData').addEventListener('click', ()=>{ if(confirm('Clear all data?')){ localStorage.removeItem(SALT_KEY); localStorage.removeItem(ENCRYPTED_KEY); appState={incomeMonthly:0,incomeYearlyExtras:[],loans:[],fixedNeedsTotal:0,guidanceMode:'soft',riskScore:70,history:[],settings:{autoLockMin:5,wasteMerchants:["swiggy","zomato","amazon","flipkart","myntra","ajio","blinkit","bajaj","meesho","nykaa"],tone:1},userGoals:{targetDebtFreeMonths:18,emergencyFundMonths:3}}; document.getElementById('lockedUI').style.display='block'; document.getElementById('appUI').style.display='none'; saveState().then(()=>alert('Data cleared')); } });
+
+/* -------------------- Enforcement -------------------- */
+function isWasteMerchant(m){ if(!m) return false; const mm=(m||'').toLowerCase(); return (appState.settings.wasteMerchants||[]).some(w=> mm.includes(w)); }
+function changeRisk(delta){ appState.riskScore=Math.max(0,Math.min(100,Math.round((appState.riskScore||70)+delta))); saveState().then(()=>renderAll()); }
+function addExpenseAndEnforce(exp){ appState.history.unshift(exp); const b=computeBucketsDetailed(); const now=new Date(exp.date); const month=now.getMonth(); const year=now.getFullYear(); const monthEntries=appState.history.filter(h=>{ const d=new Date(h.date); return d.getMonth()===month && d.getFullYear()===year; }); const monthSpent=monthEntries.reduce((s,e)=>s+Number(e.amount||0),0); const todayEntries=appState.history.filter(h=> new Date(h.date).toDateString() === new Date(exp.date).toDateString()); const todaySpent=todayEntries.reduce((s,e)=>s+Number(e.amount||0),0); const sevenDaysAgo=new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate()-7); const weekEntries=appState.history.filter(h=> new Date(h.date) >= sevenDaysAgo); const weekSpent=weekEntries.reduce((s,e)=>s+Number(e.amount||
 </script>
 </body>
 </html>
