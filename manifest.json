@@ -1,9 +1,22 @@
 {
-  "name": "Debt Tracker",
-  "short_name": "DebtApp",
-  "start_url": "index.html",
+  "name": "Debt Tracker Premium",
+  "short_name": "DebtTracker",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#f59e0b",
-  "icons": []
+  "theme_color": "#D4AF37",
+  "orientation": "portrait",
+  "scope": ".",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
