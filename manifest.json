@@ -1,20 +1,18 @@
 {
-  "name": "Debt Tracker Premium",
+  "name": "Debt Tracker \u2014 Rebuild (Dribbble)",
   "short_name": "DebtTracker",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#D4AF37",
-  "orientation": "portrait",
-  "scope": ".",
+  "background_color": "#071224",
+  "theme_color": "#f59e0b",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
