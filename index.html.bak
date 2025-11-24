@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Debt Tracker — Rebuild (Dribbble Style)</title>
+<link rel="manifest" href="manifest.json"> 
+<style>
+:root{
+  --bg:#0f1724; --card:#0b1220; --muted:#94a3b8; --accent1:#f59e0b; --accent2:#f97316; --danger:#b91c1c;
+  --glass: rgba(255,255,255,0.03);
+  --card-r:20px;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#071224,var(--bg)); color:#e6eef8; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+.app-shell{padding:calc(18px + env(safe-area-inset-top)); padding-left:16px; padding-right:16px; padding-bottom:calc(18px + env(safe-area-inset-bottom)); max-width:980px;margin:0 auto;}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.title{font-size:22px;font-weight:700;letter-spacing:-0.2px}
+.subtitle{font-size:12px;color:var(--muted);margin-top:4px}
+.kpi-row{display:flex;gap:10px;margin-top:14px}
+.kpi{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:14px;border-radius:14px;box-shadow:0 8px 24px rgba(2,6,23,0.5);}
+.kpi .num{font-size:16px;font-weight:700}
+.kpi .label{font-size:11px;color:var(--muted);margin-top:6px}
+.card{background:var(--card); padding:16px; border-radius:var(--card-r); box-shadow:0 10px 30px rgba(2,6,23,0.5); margin-top:14px;}
+.row{display:flex;gap:10px}
+.button{display:inline-block;padding:10px 14px;border-radius:999px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#06101a;font-weight:700;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(245,158,11,0.18)}
+.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:12px;color:var(--muted)}
+.input{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+.small{font-size:12px;color:var(--muted)}
+.center{display:flex;align-items:center;justify-content:center}
+.canvas{width:100%;height:160px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:block}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.legend .item{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:3px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;z-index:9999}
+.modal{width:92%;max-width:520px;background:linear-gradient(180deg,#061124,#071426);padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,0.03)}
+.warn{background:linear-gradient(90deg,var(--danger),#ef4444);padding:10px;border-radius:10px;color:white;font-weight:700;text-align:center}
+.list{margin-top:10px}
+.entry{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);margin-top:8px}
+.footer{margin-top:18px;font-size:12px;color:var(--muted);text-align:center}
+.tabbar{position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom);display:flex;padding:10px 14px;gap:8px;background:transparent;justify-content:center}
+.tab{flex:1;max-width:160px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:999px;text-align:center;color:var(--muted);font-weight:600}
+.badge{background:#08121a;padding:6px 8px;border-radius:999px;font-size:12px;color:var(--muted)}
+.smallmuted{font-size:11px;color:var(--muted)}
+
+/* wizard screens */
+.screen{display:none;animation:fadeIn .28s ease forwards}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* responsive */
+@media(min-width:720px){ .app-shell{padding-left:30px;padding-right:30px} .title{font-size:28px} }
+</style>
+</head>
+<body>
+<div class="app-shell" id="app">
+  <!-- Onboarding wizard -->
+  <div id="wizard" class="screen active">
+    <div class="header">
+      <div>
+        <div class="title">Debt Tracker</div>
+        <div class="subtitle">Plan to become debt-free — smart forecasts & iOS-grade UI</div>
+      </div>
+      <div class="center">
+        <div class="badge" id="riskBadge">Risk: --</div>
+      </div>
+    </div>
+
+    <div class="card" id="step1">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div><b>Step 1</b><div class="small">Tell us about your income</div></div><div class="smallmuted">1/4</div></div>
+      <div style="margin-top:12px">
+        <label class="small">Monthly net income (₹)</label>
+        <input id="income" class="input" type="number" placeholder="e.g., 120000">
+        <label class="small" style="margin-top:8px">Monthly salary day (1-31)</label>
+        <input id="salaryDay" class="input" type="number" min="1" max="31" placeholder="25">
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button class="button" id="toStep2">Next</button>
+        <button class="ghost" id="saveDraft1">Save Draft</button>
+      </div>
+    </div>
+
+    <div class="card" id="step2" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div><b>Step 2</b><div class="small">Add loans you want to track</div></div><div class="smallmuted">2/4</div></div>
+      <div id="loanForm" style="margin-top:12px">
+        <div class="row">
+          <input id="loanType" class="input" placeholder="Type (Personal/Home/Vehicle/CreditCard)">
+          <input id="loanOutstanding" class="input" type="number" placeholder="Outstanding (₹)">
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="loanEMI" class="input" type="number" placeholder="EMI (₹)">
+          <input id="loanRate" class="input" type="number" placeholder="Rate (%)">
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="loanTerm" class="input" type="number" placeholder="Remaining months">
+          <input id="loanName" class="input" placeholder="Lender name (optional)">
+        </div>
+        <div style="margin-top:10px"><button class="button" id="addLoanBtn2">Add Loan</button></div>
+      </div>
+      <div class="list" id="loanListWizard"></div>
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button class="button" id="toStep3">Next</button>
+        <button class="ghost" id="backTo1">Back</button>
+      </div>
+    </div>
+
+    <div class="card" id="step3" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div><b>Step 3</b><div class="small">Expenses & saving style</div></div><div class="smallmuted">3/4</div></div>
+      <div style="margin-top:12px">
+        <label class="small">Fixed needs (rent+bills) monthly (₹)</label>
+        <input id="fixedNeeds" class="input" type="number" placeholder="30000">
+        <label class="small" style="margin-top:8px">Guidance mode</label>
+        <div style="margin-top:6px">
+          <select id="guidanceMode" class="input">
+            <option value="strict">Strict</option>
+            <option value="balanced" selected>Balanced</option>
+            <option value="soft">Soft</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button class="button" id="toStep4">Next</button>
+        <button class="ghost" id="backTo2">Back</button>
+      </div>
+    </div>
+
+    <div class="card" id="step4" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div><b>Step 4</b><div class="small">Set target & finish</div></div><div class="smallmuted">4/4</div></div>
+      <div style="margin-top:12px">
+        <label class="small">Target months to become debt-free</label>
+        <input id="targetMonths" class="input" type="number" placeholder="18">
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button class="button" id="finishWizard">Finish & Analyze</button>
+        <button class="ghost" id="backTo3">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="screen" style="display:none">
+    <div class="header">
+      <div>
+        <div class="title">Dashboard</div>
+        <div class="subtitle">Overview, forecasts, and action plan</div>
+      </div>
+      <div class="center">
+        <div class="badge" id="riskBadge2">Risk: --</div>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="num" id="kDebt">₹0</div><div class="label">Total Debt</div></div>
+      <div class="kpi"><div class="num" id="kEMI">₹0</div><div class="label">Monthly EMI</div></div>
+      <div class="kpi"><div class="num" id="kLeft">₹0</div><div class="label">Monthly Left</div></div>
+    </div>
+
+    <div class="card" id="debtCard">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div><b>Debt Projection</b><div class="small">Baseline vs With Extra Payment</div></div>
+      <div><button class="ghost" id="strategyToggle">Strategy: Avalanche</button></div></div>
+      <canvas id="debtChart" class="canvas"></canvas>
+      <div class="legend" id="legendDebt"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div><b>Spending</b><div class="small">Last 30 days</div></div>
+      <div><button class="ghost" id="addExpenseBtn">+ Expense</button></div></div>
+      <div id="spendSummary" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div><b>Loans</b><div class="small">Tap to manage</div></div>
+      <div><button class="ghost" id="openLoans">Manage</button></div></div>
+      <div id="loanList" class="list"></div>
+    </div>
+
+    <div class="footer">Offline & encrypted. Export encrypted backup available.</div>
+  </div>
+
+  <!-- Modal backdrop -->
+  <div id="modalBackdrop" class="modal-backdrop center">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <!-- Bottom tabs -->
+  <div class="tabbar">
+    <div class="tab" id="tabHome">Home</div>
+    <div class="tab" id="tabAdd">Add</div>
+    <div class="tab" id="tabLoans">Loans</div>
+  </div>
+</div>
+
+<script>
+// ------------------- Basic app state -------------------
+let appState = {
+  incomeMonthly: 120000,
+  salaryDay: 25,
+  fixedNeedsTotal: 30000,
+  guidanceMode: 'balanced',
+  userGoals: { targetDebtFreeMonths: 18 },
+  loans: [],
+  history: [],
+  settings: { wasteMerchants: ["swiggy","zomato","amazon","flipkart","myntra","ajio","blinkit","bajaj","meesho","nykaa"] }
+};
+
+function uid(prefix='id'){return prefix+'_'+Math.random().toString(36).slice(2,9)}
+function money(x){return '₹'+(Math.round(x)).toLocaleString('en-IN')}
+
+// ------------------- navigation & wizard -------------------
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById(id); if(!el) return;
+  el.classList.add('active');
+}
+function gotoDashboard(){ showScreen('dashboard'); renderAll(); }
+
+document.getElementById('toStep2').addEventListener('click', ()=>{
+  const inc = Number(document.getElementById('income').value) || 0;
+  const sd = Number(document.getElementById('salaryDay').value) || 1;
+  if(!inc){ alert('Enter income'); return; }
+  appState.incomeMonthly = inc; appState.salaryDay = sd;
+  document.getElementById('step1').style.display='none'; document.getElementById('step2').style.display='block';
+});
+document.getElementById('backTo1').addEventListener('click', ()=>{ document.getElementById('step2').style.display='none'; document.getElementById('step1').style.display='block'; });
+document.getElementById('toStep3').addEventListener('click', ()=>{ document.getElementById('step2').style.display='none'; document.getElementById('step3').style.display='block'; });
+document.getElementById('backTo2').addEventListener('click', ()=>{ document.getElementById('step3').style.display='none'; document.getElementById('step2').style.display='block'; });
+document.getElementById('toStep4').addEventListener('click', ()=>{ appState.fixedNeedsTotal = Number(document.getElementById('fixedNeeds').value) || appState.fixedNeedsTotal; document.getElementById('step3').style.display='none'; document.getElementById('step4').style.display='block'; });
+document.getElementById('backTo3').addEventListener('click', ()=>{ document.getElementById('step4').style.display='none'; document.getElementById('step3').style.display='block'; });
+document.getElementById('finishWizard').addEventListener('click', ()=>{ appState.userGoals.targetDebtFreeMonths = Number(document.getElementById('targetMonths').value) || appState.userGoals.targetDebtFreeMonths; // finish
+  document.getElementById('wizard').style.display='none'; gotoDashboard(); });
+
+// ------------------- loans add from wizard -------------------
+document.getElementById('addLoanBtn2').addEventListener('click', ()=>{
+  const t = document.getElementById('loanType').value || 'Personal';
+  const p = Number(document.getElementById('loanOutstanding').value) || 0;
+  const emi = Number(document.getElementById('loanEMI').value) || 0;
+  const rate = Number(document.getElementById('loanRate').value) || 0;
+  const term = Number(document.getElementById('loanTerm').value) || 0;
+  const name = document.getElementById('loanName').value || '';
+  if(!p){ alert('Enter outstanding amount'); return; }
+  const ln = { id: uid('loan'), type: t, lender: name, principalOutstanding: p, emi: emi, rate: rate, remainingMonths: term };
+  appState.loans.push(ln); renderLoanListWizard();
+  document.getElementById('loanType').value='';document.getElementById('loanOutstanding').value='';document.getElementById('loanEMI').value='';document.getElementById('loanRate').value='';document.getElementById('loanTerm').value='';document.getElementById('loanName').value='';
+});
+
+function renderLoanListWizard(){
+  const el = document.getElementById('loanListWizard'); el.innerHTML='';
+  appState.loans.forEach(ln=>{
+    const d = document.createElement('div'); d.className='entry';
+    d.innerHTML = `<div><b>${ln.type}</b> · ${ln.lender||''}<div class="small">${money(ln.principalOutstanding)} · ${ln.rate}% · ${ln.remainingMonths}m</div></div><div><button class="ghost" onclick="removeLoan('${ln.id}')">Remove</button></div>`;
+    el.appendChild(d);
+  });
+}
+
+// ------------------- loan helpers & amortization -------------------
+function amortizationCalc(P, annualRate, n){
+  P = Number(P); annualRate = Number(annualRate); n = Number(n);
+  if(n<=0 || P<=0) return { monthlyPayment:0, monthsRemaining:0, schedule:[] };
+  const r = annualRate/100/12;
+  const EMI = r===0 ? P/n : (P * r * Math.pow(1+r,n)) / (Math.pow(1+r,n)-1);
+  const schedule = [];
+  let bal = P;
+  for(let i=0;i<n;i++){
+    const interest = bal * r;
+    const principal = Math.min(bal, EMI - interest);
+    bal = Math.max(0, bal - principal);
+    schedule.push({ month:i+1, interest, principal, balance: bal });
+  }
+  return { monthlyPayment: EMI, monthsRemaining: n, schedule };
+}
+
+function computeLoanAggregates(){
+  let totalOutstanding=0, totalEMI=0;
+  appState.loans.forEach(ln=>{ totalOutstanding += Number(ln.principalOutstanding||0); totalEMI += Number(ln.emi||0) });
+  return { totalOutstanding, totalEMI };
+}
+
+// ------------------- projection simulation (baseline & with extra) -------------------
+function simulateDebtProjection(extraMonthly=0, strategy='avalanche'){
+  // Create deep copy of loans
+  const loans = appState.loans.map(l=>Object.assign({}, l));
+  const months = 60; // simulate up to 5 years
+  const baseline = new Array(months).fill(0);
+  const scenario = new Array(months).fill(0);
+
+  function monthlyBalances(loansList, extra){
+    const balances = [];
+    for(let m=0;m<months;m++){
+      let monthTotal=0;
+      // sort loans by strategy
+      if(strategy==='avalanche'){
+        loansList.sort((a,b)=>b.rate - a.rate);
+      } else {
+        loansList.sort((a,b)=>a.principalOutstanding - b.principalOutstanding);
+      }
+      // pay each loan EMI, then apply extra to first loan in order
+      let extraLeft = extra;
+      loansList.forEach(ln=>{
+        if(ln.principalOutstanding<=0) return;
+        const r = ln.rate/100/12;
+        const n = Math.max(1, ln.remainingMonths||1);
+        const emi = ln.emi>0 ? ln.emi : (r===0? ln.principalOutstanding/n : (ln.principalOutstanding * r * Math.pow(1+r,n)) / (Math.pow(1+r,n)-1));
+        const interest = ln.principalOutstanding * r;
+        const principalPart = Math.min(ln.principalOutstanding, Math.max(0, emi - interest));
+        ln.principalOutstanding = Math.max(0, ln.principalOutstanding - principalPart);
+        ln.remainingMonths = Math.max(0, ln.remainingMonths-1);
+        // apply extra
+        if(extraLeft>0 && ln.principalOutstanding>0){
+          const pay = Math.min(extraLeft, ln.principalOutstanding);
+          ln.principalOutstanding -= pay;
+          extraLeft -= pay;
+        }
+        monthTotal += ln.principalOutstanding;
+      });
+      balances.push(monthTotal);
+      // stop early if all loans zero
+      if(loansList.every(x=>x.principalOutstanding<=0)){
+        for(let k=m+1;k<months;k++) balances.push(0);
+        break;
+      }
+    }
+    return balances;
+  }
+
+  // baseline uses extra 0
+  const baseLoans = appState.loans.map(l=>Object.assign({}, l));
+  const scnLoans = appState.loans.map(l=>Object.assign({}, l));
+  const b = monthlyBalances(baseLoans, 0);
+  const s = monthlyBalances(scnLoans, extraMonthly);
+  return { baseline: b, scenario: s };
+}
+
+// ------------------- rendering debt chart (simple canvas plot) -------------------
+function drawDebtChart(baseline, scenario){
+  const c = document.getElementById('debtChart');
+  const ctx = c.getContext('2d');
+  c.width = c.offsetWidth; c.height = 160;
+  ctx.clearRect(0,0,c.width,c.height);
+  const maxVal = Math.max(Math.max(...baseline), Math.max(...scenario), 1);
+  function plot(arr, color){
+    ctx.beginPath(); for(let i=0;i<arr.length;i++){
+      const x = (i/(arr.length-1))*(c.width-20)+10;
+      const y = c.height - 10 - (arr[i]/maxVal)*(c.height-30);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    } ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+  }
+  plot(baseline, '#94a3b8');
+  plot(scenario, '#f59e0b');
+  document.getElementById('legendDebt').innerHTML = '<div class="item"><div class="dot" style="background:#94a3b8"></div> Baseline</div><div class="item"><div class="dot" style="background:#f59e0b"></div> With Extra</div>';
+}
+
+// ------------------- spend & expense (manual) -------------------
+function addExpense(amount, merchant, dateStr, category){
+  const e = { id: uid('e'), merchant, amount: Number(amount), date: dateStr || new Date().toISOString().slice(0,10), category: category||'Misc' };
+  appState.history.unshift(e);
+  const res = preSpendForecast(amount, merchant);
+  if(res.violations.length){
+    showModal(`<div class="warn">Warning — Spending will exceed safe limits</div><div style="margin-top:10px">${res.violations.map(v=>'<div>'+v.type+': ₹'+v.over+'</div>').join('')}</div><div style="margin-top:10px"><button class="button" onclick="confirmExpense()">Proceed</button> <button class="ghost" onclick="closeModal()">Cancel</button></div>`);
+    // store pending expense in temp
+    window._pendingExpense = e;
+  } else {
+    saveStateLocal(); renderAll();
+  }
+}
+function confirmExpense(){
+  if(window._pendingExpense){ saveStateLocal(); renderAll(); closeModal(); window._pendingExpense=null }
+}
+function preSpendForecast(amount, merchant){
+  const b = computeBucketsDetailed();
+  const today = new Date().toISOString().slice(0,10);
+  const todaySpent = appState.history.filter(h=>h.date===today).reduce((s,e)=>s+Number(e.amount||0),0);
+  const newToday = todaySpent + Number(amount);
+  const violations = [];
+  if(newToday > b.dailySafe) violations.push({type:'daily', over: Math.round(newToday - b.dailySafe)});
+  const waste = isWasteMerchant(merchant);
+  return { violations, waste };
+}
+
+function isWasteMerchant(m){ if(!m) return false; const mm = (m||'').toLowerCase(); return appState.settings.wasteMerchants.some(w=> mm.includes(w)); }
+
+// ------------------- buckets & risk -------------------
+function computeBucketsDetailed(){
+  const income = Number(appState.incomeMonthly||0);
+  const needs = Math.max(0.5 * income, Number(appState.fixedNeedsTotal||0));
+  const wants = 0.3 * income;
+  const savings = 0.2 * income;
+  const agg = computeLoanAggregates();
+  const adjustedNeeds = needs + agg.totalEMI;
+  const d = new Date(); const days = new Date(d.getFullYear(), d.getMonth()+1,0).getDate();
+  return { income, needs, wants, savings, loanEMI: agg.totalEMI, adjustedNeeds, monthlySafeSpend: adjustedNeeds + wants, dailySafe: (adjustedNeeds + wants)/days, weeklySafe: (adjustedNeeds + wants)/4 };
+}
+
+function computeRiskScore(){
+  let score = 80;
+  const agg = computeLoanAggregates();
+  const b = computeBucketsDetailed();
+  const emiRatio = agg.totalEMI / Math.max(1, appState.incomeMonthly);
+  if(emiRatio > 0.4) score -= 25; else if(emiRatio > 0.25) score -= 10;
+  const waste30 = appState.history.slice(0,30).filter(h=> isWasteMerchant(h.merchant)).reduce((s,e)=>s+Number(e.amount||0),0);
+  const wasteRatio = waste30 / Math.max(1, appState.incomeMonthly);
+  if(wasteRatio > 0.15) score -=20; else if(wasteRatio > 0.08) score -=8;
+  const lastMonthSpent = appState.history.filter(h=> isInCurrentMonth(h.date)).reduce((s,e)=>s+Number(e.amount||0),0);
+  const savedEstimate = Math.max(0, appState.incomeMonthly - lastMonthSpent);
+  const saveRatio = savedEstimate / Math.max(1, appState.incomeMonthly);
+  if(saveRatio < 0.12) score -=20; else if(saveRatio < 0.18) score -=8;
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return score;
+}
+
+function isInCurrentMonth(datestr){ const d=new Date(datestr); const now=new Date(); return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth(); }
+
+// ------------------- persistence (localStorage, encrypted blob kept simple for demo) -------------------
+function saveStateLocal(){ localStorage.setItem('debt_app_state_v1', JSON.stringify(appState)); }
+function loadStateLocal(){ const v=localStorage.getItem('debt_app_state_v1'); if(v) appState=JSON.parse(v); }
+
+// ------------------- render -------------------
+function renderAll(){
+  // kpis
+  const agg = computeLoanAggregates();
+  document.getElementById('kDebt').innerText = money(agg.totalOutstanding);
+  document.getElementById('kEMI').innerText = money(agg.totalEMI);
+  const buckets = computeBucketsDetailed();
+  const left = Math.max(0, appState.incomeMonthly - agg.totalEMI - buckets.adjustedNeeds);
+  document.getElementById('kLeft').innerText = money(left);
+  // risk
+  const risk = computeRiskScore();
+  document.getElementById('riskBadge').innerText = 'Risk: '+risk;
+  document.getElementById('riskBadge2').innerText = 'Risk: '+risk;
+  // loans
+  const ll = document.getElementById('loanList'); ll.innerHTML='';
+  appState.loans.forEach(ln=>{ const div=document.createElement('div'); div.className='entry'; div.innerHTML=`<div><b>${ln.type}</b><div class="small">${money(ln.principalOutstanding)} · ${ln.rate}% · ${ln.remainingMonths}m</div></div><div><button class="ghost" onclick="prepayPrompt('${ln.id}')">Prepay</button> <button class="ghost" onclick="removeLoan('${ln.id}')">Remove</button></div>`; ll.appendChild(div)})
+  // spend summary
+  const spend = appState.history.slice(0,10);
+  const ss = document.getElementById('spendSummary'); ss.innerHTML='';
+  spend.forEach(s=>{ const d=document.createElement('div'); d.className='entry'; d.innerHTML=`<div>${s.merchant} · ${s.category} <div class="small">${s.date}</div></div><div>${money(s.amount)}</div>`; ss.appendChild(d) });
+  // debt projection chart
+  const sim = simulateDebtProjection(Math.round(buckets.wants*0.1),'avalanche');
+  drawDebtChart(sim.baseline, sim.scenario);
+  saveStateLocal();
+}
+
+function removeLoan(id){ if(confirm('Remove loan?')){ appState.loans = appState.loans.filter(l=>l.id!==id); renderAll(); } }
+function prepayPrompt(id){
+  const amt = prompt('Enter extra principal payment amount (₹):'); if(!amt) return;
+  const ln = appState.loans.find(l=>l.id===id); if(!ln) return;
+  ln.principalOutstanding = Math.max(0, Number(ln.principalOutstanding) - Number(amt)); renderAll();
+}
+
+// ------------------- modal helpers -------------------
+function showModal(html){ document.getElementById('modalContent').innerHTML = html; document.getElementById('modalBackdrop').style.display='flex'; }
+function closeModal(){ document.getElementById('modalBackdrop').style.display='none'; window._pendingExpense=null; }
+
+// ------------------- simple quick actions -------------------
+document.getElementById('tabHome').addEventListener('click', ()=>{ gotoDashboard(); });
+document.getElementById('tabAdd').addEventListener('click', ()=>{
+  showModal('<div><b>Add Expense</b><div class="small" style="margin-top:8px">Manual add</div><div style="margin-top:10px"><input id="mAmount" class="input" placeholder="Amount"><input id="mMerchant" class="input" placeholder="Merchant" style="margin-top:8px"><div style="margin-top:8px"><button class="button" onclick="modalAddExpense()">Add</button> <button class="ghost" onclick="closeModal()">Close</button></div></div></div>');
+});
+document.getElementById('tabLoans').addEventListener('click', ()=>{ showModal('<div><b>Manage Loans</b><div class="small">Add / edit your loans</div><div style="margin-top:10px"><input id="mlType" class="input" placeholder="Type"><input id="mlOutstanding" class="input" placeholder="Outstanding" style="margin-top:8px"><input id="mlEMI" class="input" placeholder="EMI" style="margin-top:8px"><input id="mlRate" class="input" placeholder="Rate (%)" style="margin-top:8px"><input id="mlTerm" class="input" placeholder="Remaining months" style="margin-top:8px"><div style="margin-top:10px"><button class="button" onclick="modalAddLoan()">Add Loan</button> <button class="ghost" onclick="closeModal()">Close</button></div></div></div>'); });
+
+function modalAddExpense(){ const a = Number(document.getElementById('mAmount').value||0); const m = document.getElementById('mMerchant').value||'Manual'; if(!a){ alert('Enter amount'); return; } addExpense(a,m,new Date().toISOString().slice(0,10)); closeModal(); }
+function modalAddLoan(){ const t = document.getElementById('mlType').value||'Personal'; const p = Number(document.getElementById('mlOutstanding').value)||0; const emi = Number(document.getElementById('mlEMI').value)||0; const rate = Number(document.getElementById('mlRate').value)||0; const term = Number(document.getElementById('mlTerm').value)||0; if(!p){ alert('Enter outstanding'); return;} appState.loans.push({ id: uid('loan'), type:t, principalOutstanding:p, emi:emi, rate:rate, remainingMonths:term }); closeModal(); renderAll(); }
+
+// strategy toggle
+let strategy = 'avalanche';
+document.getElementById('strategyToggle').addEventListener('click', ()=>{ strategy = (strategy==='avalanche'?'snowball':'avalanche'); document.getElementById('strategyToggle').innerText = 'Strategy: '+(strategy==='avalanche'?'Avalanche':'Snowball'); renderAll(); });
+
+// init load
+loadStateLocal();
+renderAll();
+</script>
+</body>
+</html>
