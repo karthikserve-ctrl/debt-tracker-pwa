@@ -1,5 +1,0 @@
-Merged MNC UI: added features/upload_manual.js, features/encryption_wrapper.js, expense_template.csv, SHEETJS_README.txt
-Updated index.html (backup at index.html.bak)
-Added MNC UI injection for dark/light theme, bottom nav, dashboard skeleton and import modal.
-
-FINAL MERGE: Added risk_engine, forecast, debt_engine, passphrase onboarding, SheetJS CDN, FINAL_README
